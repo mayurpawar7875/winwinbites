@@ -27,7 +27,9 @@ export type Database = {
           punch_out_lng: number | null
           punch_out_photo_url: string | null
           punch_out_time: string | null
+          status: string | null
           user_id: string
+          working_hours: number | null
         }
         Insert: {
           created_at?: string | null
@@ -41,7 +43,9 @@ export type Database = {
           punch_out_lng?: number | null
           punch_out_photo_url?: string | null
           punch_out_time?: string | null
+          status?: string | null
           user_id: string
+          working_hours?: number | null
         }
         Update: {
           created_at?: string | null
@@ -55,7 +59,9 @@ export type Database = {
           punch_out_lng?: number | null
           punch_out_photo_url?: string | null
           punch_out_time?: string | null
+          status?: string | null
           user_id?: string
+          working_hours?: number | null
         }
         Relationships: []
       }
@@ -593,6 +599,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      expire_attendance_sessions: { Args: never; Returns: undefined }
       generate_invoice_number: { Args: { user_id: string }; Returns: string }
       has_role: {
         Args: {
