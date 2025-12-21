@@ -471,7 +471,9 @@ export type Database = {
           email: string
           id: string
           is_active: boolean | null
+          monthly_salary: number | null
           name: string
+          overtime_rate: number | null
           user_id: string
         }
         Insert: {
@@ -479,7 +481,9 @@ export type Database = {
           email: string
           id?: string
           is_active?: boolean | null
+          monthly_salary?: number | null
           name: string
+          overtime_rate?: number | null
           user_id: string
         }
         Update: {
@@ -487,7 +491,9 @@ export type Database = {
           email?: string
           id?: string
           is_active?: boolean | null
+          monthly_salary?: number | null
           name?: string
+          overtime_rate?: number | null
           user_id?: string
         }
         Relationships: []
@@ -531,6 +537,69 @@ export type Database = {
           unit?: string
           user_id?: string
           vendor_name?: string
+        }
+        Relationships: []
+      }
+      salary_slips: {
+        Row: {
+          basic_salary: number
+          days_absent: number
+          days_half: number
+          days_present: number
+          deductions: number
+          generated_at: string
+          generated_by: string
+          id: string
+          month: number
+          net_salary: number
+          notes: string | null
+          overtime_hours: number
+          overtime_pay: number
+          regular_hours: number
+          total_hours_worked: number
+          total_working_days: number
+          user_id: string
+          year: number
+        }
+        Insert: {
+          basic_salary?: number
+          days_absent?: number
+          days_half?: number
+          days_present?: number
+          deductions?: number
+          generated_at?: string
+          generated_by: string
+          id?: string
+          month: number
+          net_salary?: number
+          notes?: string | null
+          overtime_hours?: number
+          overtime_pay?: number
+          regular_hours?: number
+          total_hours_worked?: number
+          total_working_days?: number
+          user_id: string
+          year: number
+        }
+        Update: {
+          basic_salary?: number
+          days_absent?: number
+          days_half?: number
+          days_present?: number
+          deductions?: number
+          generated_at?: string
+          generated_by?: string
+          id?: string
+          month?: number
+          net_salary?: number
+          notes?: string | null
+          overtime_hours?: number
+          overtime_pay?: number
+          regular_hours?: number
+          total_hours_worked?: number
+          total_working_days?: number
+          user_id?: string
+          year?: number
         }
         Relationships: []
       }

@@ -24,6 +24,7 @@ import {
   Shield,
   RefreshCw,
   CalendarIcon,
+  IndianRupee,
 } from "lucide-react";
 import logo from "@/assets/win-win-bites-logo.jpg";
 
@@ -331,6 +332,20 @@ export default function Dashboard() {
                 </div>
               </div>
             </Card>
+            <Card
+              className="mt-3 cursor-pointer border-0 shadow-md hover:shadow-lg transition-all duration-200 active:scale-[0.99]"
+              onClick={() => navigate("/plant-manager/salary")}
+            >
+              <div className="p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
+                <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-lg sm:rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                  <IndianRupee className="h-5 w-5 sm:h-6 sm:w-6 text-green-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-sm sm:text-base text-foreground">Salary Management</h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Generate salary slips</p>
+                </div>
+              </div>
+            </Card>
           </>
         )}
 
@@ -370,22 +385,38 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* History Link - Only show for non-admin users */}
+        {/* History and Salary Links - Only show for non-admin users */}
         {!isAdmin && (
-          <Card
-            className="mt-4 sm:mt-6 cursor-pointer border-0 shadow-md hover:shadow-lg transition-all duration-200 active:scale-[0.99]"
-            onClick={() => navigate("/plant-manager/history")}
-          >
-            <div className="p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
-              <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-lg sm:rounded-xl bg-secondary flex items-center justify-center">
-                <History className="h-5 w-5 sm:h-6 sm:w-6 text-secondary-foreground" />
+          <>
+            <Card
+              className="mt-4 sm:mt-6 cursor-pointer border-0 shadow-md hover:shadow-lg transition-all duration-200 active:scale-[0.99]"
+              onClick={() => navigate("/plant-manager/history")}
+            >
+              <div className="p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
+                <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-lg sm:rounded-xl bg-secondary flex items-center justify-center">
+                  <History className="h-5 w-5 sm:h-6 sm:w-6 text-secondary-foreground" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-sm sm:text-base text-foreground">View History</h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Browse past entries</p>
+                </div>
               </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-sm sm:text-base text-foreground">View History</h3>
-                <p className="text-xs sm:text-sm text-muted-foreground">Browse past entries</p>
+            </Card>
+            <Card
+              className="mt-3 cursor-pointer border-0 shadow-md hover:shadow-lg transition-all duration-200 active:scale-[0.99]"
+              onClick={() => navigate("/plant-manager/salary")}
+            >
+              <div className="p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
+                <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-lg sm:rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                  <IndianRupee className="h-5 w-5 sm:h-6 sm:w-6 text-green-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-sm sm:text-base text-foreground">My Salary Slips</h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground">View your salary history</p>
+                </div>
               </div>
-            </div>
-          </Card>
+            </Card>
+          </>
         )}
       </main>
     </div>
