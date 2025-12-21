@@ -11,18 +11,21 @@ import { Loader2, Eye, EyeOff } from "lucide-react";
 import { z } from "zod";
 import logo from "@/assets/win-win-bites-logo.jpg";
 
-const loginSchema = z.object({
-  email: z.string().email("Please enter a valid email"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+const authSchema = z.object({
+  email: z.string().trim().email("Please enter a valid email").max(255, "Email too long"),
+  password: z.string().min(6, "Password must be at least 6 characters").max(72, "Password too long"),
+  name: z.string().trim().min(2, "Name must be at least 2 characters").max(100, "Name too long").optional(),
 });
 
 export default function Auth() {
+  const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   
-  const { signIn, user, isLoading: authLoading } = useAuth();
+  const { signIn, signUp, user, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
 
   // Clear stale auth tokens on mount to prevent refresh token errors
@@ -46,38 +49,70 @@ export default function Auth() {
     }
   }, [user, authLoading, navigate]);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const validation = loginSchema.safeParse({ email, password });
+    const validationData = isSignUp 
+      ? { email, password, name } 
+      : { email, password };
+    
+    const validation = authSchema.safeParse(validationData);
     if (!validation.success) {
       toast.error(validation.error.errors[0].message);
+      return;
+    }
+
+    if (isSignUp && (!name || name.trim().length < 2)) {
+      toast.error("Please enter your name");
       return;
     }
 
     setIsLoading(true);
 
     try {
-      const { error } = await signIn(email, password);
-      
-      if (error) {
-        if (error.message.includes("Invalid login credentials")) {
-          toast.error("Invalid email or password");
-        } else if (error.message.includes("Email not confirmed")) {
-          toast.error("Please verify your email address");
-        } else {
-          toast.error(error.message);
+      if (isSignUp) {
+        const { error } = await signUp(email, password, name);
+        
+        if (error) {
+          if (error.message.includes("User already registered")) {
+            toast.error("An account with this email already exists. Please sign in.");
+          } else {
+            toast.error(error.message);
+          }
+          setIsLoading(false);
+          return;
         }
-        setIsLoading(false);
-        return;
-      }
 
-      toast.success("Welcome back!");
-      // Navigation will be handled by useEffect watching user state
+        toast.success("Account created successfully! Welcome aboard!");
+        // Navigation will be handled by useEffect watching user state
+      } else {
+        const { error } = await signIn(email, password);
+        
+        if (error) {
+          if (error.message.includes("Invalid login credentials")) {
+            toast.error("Invalid email or password");
+          } else if (error.message.includes("Email not confirmed")) {
+            toast.error("Please verify your email address");
+          } else {
+            toast.error(error.message);
+          }
+          setIsLoading(false);
+          return;
+        }
+
+        toast.success("Welcome back!");
+      }
     } catch (error) {
       toast.error("An unexpected error occurred");
       setIsLoading(false);
     }
+  };
+
+  const toggleMode = () => {
+    setIsSignUp(!isSignUp);
+    setEmail("");
+    setPassword("");
+    setName("");
   };
 
   return (
@@ -95,13 +130,34 @@ export default function Auth() {
 
         <Card className="border-0 shadow-xl">
           <CardHeader className="space-y-1 pb-2 sm:pb-4 pt-4 sm:pt-6">
-            <CardTitle className="text-lg sm:text-xl text-center">Welcome Back</CardTitle>
+            <CardTitle className="text-lg sm:text-xl text-center">
+              {isSignUp ? "Create Account" : "Welcome Back"}
+            </CardTitle>
             <CardDescription className="text-center text-xs sm:text-sm">
-              Enter your credentials to access your dashboard
+              {isSignUp 
+                ? "Enter your details to create your account" 
+                : "Enter your credentials to access your dashboard"}
             </CardDescription>
           </CardHeader>
           <CardContent className="pb-4 sm:pb-6">
-            <form onSubmit={handleLogin} className="space-y-3 sm:space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+              {isSignUp && (
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="name" className="text-sm">Full Name</Label>
+                  <Input
+                    id="name"
+                    type="text"
+                    placeholder="John Doe"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required={isSignUp}
+                    autoComplete="name"
+                    className="h-10 sm:h-12 text-sm sm:text-base"
+                    maxLength={100}
+                  />
+                </div>
+              )}
+              
               <div className="space-y-1.5 sm:space-y-2">
                 <Label htmlFor="email" className="text-sm">Email</Label>
                 <Input
@@ -113,6 +169,7 @@ export default function Auth() {
                   required
                   autoComplete="email"
                   className="h-10 sm:h-12 text-sm sm:text-base"
+                  maxLength={255}
                 />
               </div>
               
@@ -126,8 +183,9 @@ export default function Auth() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    autoComplete="current-password"
+                    autoComplete={isSignUp ? "new-password" : "current-password"}
                     className="h-10 sm:h-12 text-sm sm:text-base pr-12"
+                    maxLength={72}
                   />
                   <Button
                     type="button"
@@ -153,18 +211,32 @@ export default function Auth() {
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 sm:h-5 w-4 sm:w-5 animate-spin" />
-                    Signing in...
+                    {isSignUp ? "Creating account..." : "Signing in..."}
                   </>
                 ) : (
-                  "Sign In"
+                  isSignUp ? "Create Account" : "Sign In"
                 )}
               </Button>
             </form>
+
+            <div className="mt-4 text-center">
+              <button
+                type="button"
+                onClick={toggleMode}
+                className="text-sm text-primary hover:underline"
+              >
+                {isSignUp 
+                  ? "Already have an account? Sign in" 
+                  : "Don't have an account? Sign up"}
+              </button>
+            </div>
           </CardContent>
         </Card>
 
         <p className="text-center text-xs text-muted-foreground mt-4 sm:mt-6">
-          Contact your administrator if you need access
+          {isSignUp 
+            ? "By signing up, you agree to our terms of service" 
+            : "Contact your administrator if you need access"}
         </p>
       </div>
     </div>
