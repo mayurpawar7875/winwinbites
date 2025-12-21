@@ -59,6 +59,87 @@ export type Database = {
         }
         Relationships: []
       }
+      collections: {
+        Row: {
+          amount_received: number
+          created_at: string
+          created_by: string
+          customer_id: string | null
+          id: string
+          invoice_id: string
+          mode_of_payment: Database["public"]["Enums"]["collection_payment_mode"]
+          payment_date: string
+          reference_no: string | null
+          remarks: string | null
+        }
+        Insert: {
+          amount_received: number
+          created_at?: string
+          created_by: string
+          customer_id?: string | null
+          id?: string
+          invoice_id: string
+          mode_of_payment: Database["public"]["Enums"]["collection_payment_mode"]
+          payment_date: string
+          reference_no?: string | null
+          remarks?: string | null
+        }
+        Update: {
+          amount_received?: number
+          created_at?: string
+          created_by?: string
+          customer_id?: string | null
+          id?: string
+          invoice_id?: string
+          mode_of_payment?: Database["public"]["Enums"]["collection_payment_mode"]
+          payment_date?: string
+          reference_no?: string | null
+          remarks?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collections_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collections_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customers: {
+        Row: {
+          address: string | null
+          created_at: string
+          created_by: string
+          id: string
+          name: string
+          phone: string | null
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          created_by: string
+          id?: string
+          name: string
+          phone?: string | null
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          name?: string
+          phone?: string | null
+        }
+        Relationships: []
+      }
       expenses: {
         Row: {
           amount: number
@@ -133,6 +214,124 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      invoice_items: {
+        Row: {
+          created_at: string
+          id: string
+          invoice_id: string
+          line_total: number
+          product_name: string
+          quantity: number
+          rate: number
+          unit: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          invoice_id: string
+          line_total: number
+          product_name: string
+          quantity: number
+          rate: number
+          unit: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          invoice_id?: string
+          line_total?: number
+          product_name?: string
+          quantity?: number
+          rate?: number
+          unit?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_items_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoices: {
+        Row: {
+          amount_paid: number
+          balance_due: number
+          billing_address: string | null
+          created_at: string
+          created_by: string
+          customer_id: string | null
+          customer_name: string
+          customer_phone: string | null
+          discount: number
+          grand_total: number
+          gst_amount: number
+          gst_percent: number
+          id: string
+          invoice_date: string
+          invoice_no: string
+          notes: string | null
+          payment_status: Database["public"]["Enums"]["invoice_payment_status"]
+          ship_to_address: string | null
+          sub_total: number
+          updated_at: string
+        }
+        Insert: {
+          amount_paid?: number
+          balance_due?: number
+          billing_address?: string | null
+          created_at?: string
+          created_by: string
+          customer_id?: string | null
+          customer_name: string
+          customer_phone?: string | null
+          discount?: number
+          grand_total?: number
+          gst_amount?: number
+          gst_percent?: number
+          id?: string
+          invoice_date: string
+          invoice_no: string
+          notes?: string | null
+          payment_status?: Database["public"]["Enums"]["invoice_payment_status"]
+          ship_to_address?: string | null
+          sub_total?: number
+          updated_at?: string
+        }
+        Update: {
+          amount_paid?: number
+          balance_due?: number
+          billing_address?: string | null
+          created_at?: string
+          created_by?: string
+          customer_id?: string | null
+          customer_name?: string
+          customer_phone?: string | null
+          discount?: number
+          grand_total?: number
+          gst_amount?: number
+          gst_percent?: number
+          id?: string
+          invoice_date?: string
+          invoice_no?: string
+          notes?: string | null
+          payment_status?: Database["public"]["Enums"]["invoice_payment_status"]
+          ship_to_address?: string | null
+          sub_total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       outstanding: {
         Row: {
@@ -394,6 +593,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_invoice_number: { Args: { user_id: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -405,6 +605,8 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "plantManager"
+      collection_payment_mode: "CASH" | "UPI" | "ONLINE" | "BANK"
+      invoice_payment_status: "UNPAID" | "PARTIAL" | "PAID"
       party_type: "VENDOR" | "CUSTOMER"
       payment_mode: "CASH" | "ONLINE"
       payment_status: "PAID" | "CREDIT"
@@ -544,6 +746,8 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "plantManager"],
+      collection_payment_mode: ["CASH", "UPI", "ONLINE", "BANK"],
+      invoice_payment_status: ["UNPAID", "PARTIAL", "PAID"],
       party_type: ["VENDOR", "CUSTOMER"],
       payment_mode: ["CASH", "ONLINE"],
       payment_status: ["PAID", "CREDIT"],
