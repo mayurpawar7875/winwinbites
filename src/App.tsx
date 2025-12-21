@@ -18,6 +18,7 @@ import Outstanding from "./pages/plant-manager/Outstanding";
 import Problems from "./pages/plant-manager/Problems";
 import History from "./pages/plant-manager/History";
 import UserManagement from "./pages/plant-manager/UserManagement";
+import AdminDashboard from "./pages/plant-manager/AdminDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,7 @@ const App = () => (
               <Route path="/plant-manager/problems" element={<Problems />} />
               <Route path="/plant-manager/history" element={<History />} />
               <Route path="/plant-manager/users" element={<UserManagement />} />
+              <Route path="/plant-manager/admin" element={<AdminDashboard />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

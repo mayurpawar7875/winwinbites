@@ -194,20 +194,36 @@ export default function Dashboard() {
 
         {/* Admin: User Management */}
         {isAdmin && (
-          <Card
-            className="mt-3 sm:mt-4 cursor-pointer border-0 shadow-md hover:shadow-lg transition-all duration-200 active:scale-[0.99] bg-primary/5"
-            onClick={() => navigate("/plant-manager/users")}
-          >
-            <div className="p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
-              <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-lg sm:rounded-xl gradient-primary flex items-center justify-center">
-                <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground" />
+          <>
+            <Card
+              className="mt-3 sm:mt-4 cursor-pointer border-0 shadow-md hover:shadow-lg transition-all duration-200 active:scale-[0.99] bg-primary/5"
+              onClick={() => navigate("/plant-manager/admin")}
+            >
+              <div className="p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
+                <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-lg sm:rounded-xl gradient-primary flex items-center justify-center">
+                  <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-sm sm:text-base text-foreground">Admin Dashboard</h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Real-time activity monitor</p>
+                </div>
               </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-sm sm:text-base text-foreground">User Management</h3>
-                <p className="text-xs sm:text-sm text-muted-foreground">Admin: Create & manage users</p>
+            </Card>
+            <Card
+              className="mt-3 cursor-pointer border-0 shadow-md hover:shadow-lg transition-all duration-200 active:scale-[0.99]"
+              onClick={() => navigate("/plant-manager/users")}
+            >
+              <div className="p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
+                <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-lg sm:rounded-xl bg-secondary flex items-center justify-center">
+                  <User className="h-5 w-5 sm:h-6 sm:w-6 text-secondary-foreground" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-sm sm:text-base text-foreground">User Management</h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Create & manage users</p>
+                </div>
               </div>
-            </div>
-          </Card>
+            </Card>
+          </>
         )}
       </main>
     </div>
