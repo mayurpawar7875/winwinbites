@@ -1,5 +1,7 @@
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
@@ -16,6 +18,7 @@ import {
   LogOut,
   User,
   Shield,
+  RefreshCw,
 } from "lucide-react";
 import logo from "@/assets/win-win-bites-logo.jpg";
 
@@ -86,9 +89,81 @@ const modules = [
   },
 ];
 
+const adminStats = [
+  { id: "attendance", title: "Attendance", icon: Clock, color: "hsl(var(--primary))" },
+  { id: "production", title: "Production", icon: Factory, color: "hsl(var(--accent))" },
+  { id: "sales", title: "Sales", icon: DollarSign, color: "hsl(142 70% 45%)" },
+  { id: "purchases", title: "Purchases", icon: ShoppingCart, color: "hsl(262 83% 58%)" },
+  { id: "expenses", title: "Expenses", icon: Wallet, color: "hsl(0 72% 51%)" },
+  { id: "problems", title: "Open Issues", icon: AlertTriangle, color: "hsl(38 92% 50%)" },
+];
+
 export default function Dashboard() {
   const { profile, signOut, isAdmin } = useAuth();
   const navigate = useNavigate();
+  
+  // Admin stats state
+  const [stats, setStats] = useState({
+    attendance: 0,
+    production: 0,
+    sales: 0,
+    purchases: 0,
+    expenses: 0,
+    problems: 0,
+  });
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  useEffect(() => {
+    if (isAdmin) {
+      fetchAdminStats();
+      setupRealtimeSubscriptions();
+    }
+  }, [isAdmin]);
+
+  const fetchAdminStats = async () => {
+    setIsRefreshing(true);
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      
+      const [attendanceRes, productionRes, salesRes, purchasesRes, expensesRes, problemsRes] = await Promise.all([
+        supabase.from("attendance").select("id", { count: "exact" }).eq("date", today),
+        supabase.from("production").select("id", { count: "exact" }).eq("date", today),
+        supabase.from("sales").select("id", { count: "exact" }).eq("date", today),
+        supabase.from("purchases").select("id", { count: "exact" }).eq("date", today),
+        supabase.from("expenses").select("id", { count: "exact" }).eq("date", today),
+        supabase.from("problems").select("id", { count: "exact" }).eq("status", "OPEN"),
+      ]);
+
+      setStats({
+        attendance: attendanceRes.count || 0,
+        production: productionRes.count || 0,
+        sales: salesRes.count || 0,
+        purchases: purchasesRes.count || 0,
+        expenses: expensesRes.count || 0,
+        problems: problemsRes.count || 0,
+      });
+    } catch (error) {
+      console.error("Error fetching stats:", error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  const setupRealtimeSubscriptions = () => {
+    const channel = supabase
+      .channel("admin-dashboard-stats")
+      .on("postgres_changes", { event: "*", schema: "public", table: "attendance" }, () => fetchAdminStats())
+      .on("postgres_changes", { event: "*", schema: "public", table: "production" }, () => fetchAdminStats())
+      .on("postgres_changes", { event: "*", schema: "public", table: "sales" }, () => fetchAdminStats())
+      .on("postgres_changes", { event: "*", schema: "public", table: "purchases" }, () => fetchAdminStats())
+      .on("postgres_changes", { event: "*", schema: "public", table: "expenses" }, () => fetchAdminStats())
+      .on("postgres_changes", { event: "*", schema: "public", table: "problems" }, () => fetchAdminStats())
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  };
 
   const handleLogout = async () => {
     await signOut();
@@ -104,12 +179,27 @@ export default function Dashboard() {
           <div className="flex items-center gap-2 sm:gap-3">
             <img src={logo} alt="Win Win Bites" className="h-8 sm:h-10 w-auto" />
             <div>
-              <h1 className="font-bold text-sm sm:text-base text-foreground">Plant Manager</h1>
-              <p className="text-[10px] sm:text-xs text-muted-foreground">Daily Reporting</p>
+              <h1 className="font-bold text-sm sm:text-base text-foreground">
+                {isAdmin ? "Admin Panel" : "Plant Manager"}
+              </h1>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">
+                {isAdmin ? "Real-time Monitor" : "Daily Reporting"}
+              </p>
             </div>
           </div>
           
           <div className="flex items-center gap-1 sm:gap-2">
+            {isAdmin && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={fetchAdminStats}
+                disabled={isRefreshing}
+                className="h-8 w-8 sm:h-10 sm:w-10 text-muted-foreground"
+              >
+                <RefreshCw className={`h-4 w-4 sm:h-5 sm:w-5 ${isRefreshing ? "animate-spin" : ""}`} />
+              </Button>
+            )}
             <div className="hidden sm:flex items-center gap-2 mr-2">
               <div className="h-8 w-8 rounded-full bg-secondary flex items-center justify-center">
                 <User className="h-4 w-4 text-secondary-foreground" />
@@ -141,6 +231,66 @@ export default function Dashboard() {
             })}
           </p>
         </div>
+
+        {/* Admin Stats Grid */}
+        {isAdmin && (
+          <>
+            <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-4">
+              {adminStats.map((stat) => {
+                const Icon = stat.icon;
+                const count = stats[stat.id as keyof typeof stats];
+                return (
+                  <Card
+                    key={stat.id}
+                    className="border-0 shadow-md cursor-pointer hover:shadow-lg transition-all"
+                    onClick={() => navigate("/plant-manager/admin")}
+                  >
+                    <div className="p-2 sm:p-4 flex flex-col items-center text-center gap-1 sm:gap-2">
+                      <div
+                        className="h-8 w-8 sm:h-12 sm:w-12 rounded-lg sm:rounded-xl flex items-center justify-center"
+                        style={{ backgroundColor: `${stat.color}15` }}
+                      >
+                        <Icon className="h-4 w-4 sm:h-6 sm:w-6" style={{ color: stat.color }} />
+                      </div>
+                      <span className="text-lg sm:text-2xl font-bold text-foreground">{count}</span>
+                      <span className="text-[10px] sm:text-xs text-muted-foreground">{stat.title}</span>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+
+            {/* Admin Navigation Cards */}
+            <Card
+              className="cursor-pointer border-0 shadow-md hover:shadow-lg transition-all duration-200 active:scale-[0.99] bg-primary/5"
+              onClick={() => navigate("/plant-manager/admin")}
+            >
+              <div className="p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
+                <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-lg sm:rounded-xl gradient-primary flex items-center justify-center">
+                  <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-sm sm:text-base text-foreground">View All Activity</h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Detailed real-time records</p>
+                </div>
+              </div>
+            </Card>
+            <Card
+              className="mt-3 cursor-pointer border-0 shadow-md hover:shadow-lg transition-all duration-200 active:scale-[0.99]"
+              onClick={() => navigate("/plant-manager/users")}
+            >
+              <div className="p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
+                <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-lg sm:rounded-xl bg-secondary flex items-center justify-center">
+                  <User className="h-5 w-5 sm:h-6 sm:w-6 text-secondary-foreground" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-sm sm:text-base text-foreground">User Management</h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Create & manage users</p>
+                </div>
+              </div>
+            </Card>
+          </>
+        )}
 
         {/* Module Grid - Only show for non-admin users */}
         {!isAdmin && (
@@ -194,40 +344,6 @@ export default function Dashboard() {
               </div>
             </div>
           </Card>
-        )}
-
-        {/* Admin: User Management */}
-        {isAdmin && (
-          <>
-            <Card
-              className="mt-3 sm:mt-4 cursor-pointer border-0 shadow-md hover:shadow-lg transition-all duration-200 active:scale-[0.99] bg-primary/5"
-              onClick={() => navigate("/plant-manager/admin")}
-            >
-              <div className="p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
-                <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-lg sm:rounded-xl gradient-primary flex items-center justify-center">
-                  <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-sm sm:text-base text-foreground">Admin Dashboard</h3>
-                  <p className="text-xs sm:text-sm text-muted-foreground">Real-time activity monitor</p>
-                </div>
-              </div>
-            </Card>
-            <Card
-              className="mt-3 cursor-pointer border-0 shadow-md hover:shadow-lg transition-all duration-200 active:scale-[0.99]"
-              onClick={() => navigate("/plant-manager/users")}
-            >
-              <div className="p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
-                <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-lg sm:rounded-xl bg-secondary flex items-center justify-center">
-                  <User className="h-5 w-5 sm:h-6 sm:w-6 text-secondary-foreground" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-sm sm:text-base text-foreground">User Management</h3>
-                  <p className="text-xs sm:text-sm text-muted-foreground">Create & manage users</p>
-                </div>
-              </div>
-            </Card>
-          </>
         )}
       </main>
     </div>
