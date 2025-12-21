@@ -275,151 +275,151 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-card border-b border-border shadow-sm">
-        <div className="container flex items-center justify-between h-16 px-4">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/plant-manager/dashboard")}>
-              <ArrowLeft className="h-5 w-5" />
+        <div className="container flex items-center justify-between h-12 sm:h-16 px-3 sm:px-4">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-10 sm:w-10" onClick={() => navigate("/plant-manager/dashboard")}>
+              <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Shield className="h-5 w-5 text-primary" />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl bg-primary/10 flex items-center justify-center">
+                <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
               </div>
               <div>
-                <h1 className="font-bold text-foreground">Admin Dashboard</h1>
-                <p className="text-xs text-muted-foreground">Real-time Activity Monitor</p>
+                <h1 className="font-bold text-sm sm:text-base text-foreground">Admin Dashboard</h1>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">Real-time Monitor</p>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Activity className="h-4 w-4 text-green-500 animate-pulse" />
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-muted-foreground">
+              <Activity className="h-3 w-3 sm:h-4 sm:w-4 text-green-500 animate-pulse" />
               <span className="hidden sm:inline">Live</span>
             </div>
-            <Button variant="outline" size="sm" onClick={fetchAllData}>
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Refresh
+            <Button variant="outline" size="sm" className="h-7 sm:h-9 text-xs sm:text-sm px-2 sm:px-3" onClick={fetchAllData}>
+              <RefreshCw className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Refresh</span>
             </Button>
           </div>
         </div>
       </header>
 
-      <main className="container px-4 py-6">
+      <main className="container px-3 sm:px-4 py-4 sm:py-6">
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+        <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-4 mb-4 sm:mb-6">
           <Card className="border-0 shadow-md">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                <Clock className="h-5 w-5 text-blue-600" />
+            <CardContent className="p-2 sm:p-4 flex flex-col sm:flex-row items-center gap-1 sm:gap-3">
+              <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
               </div>
-              <div>
-                <p className="text-2xl font-bold">{attendance.length}</p>
-                <p className="text-xs text-muted-foreground">Attendance</p>
+              <div className="text-center sm:text-left">
+                <p className="text-lg sm:text-2xl font-bold">{attendance.length}</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">Attendance</p>
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-0 shadow-md">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                <Factory className="h-5 w-5 text-green-600" />
+            <CardContent className="p-2 sm:p-4 flex flex-col sm:flex-row items-center gap-1 sm:gap-3">
+              <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                <Factory className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
               </div>
-              <div>
-                <p className="text-2xl font-bold">{production.length}</p>
-                <p className="text-xs text-muted-foreground">Production</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-0 shadow-md">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
-                <DollarSign className="h-5 w-5 text-yellow-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{sales.length}</p>
-                <p className="text-xs text-muted-foreground">Sales</p>
+              <div className="text-center sm:text-left">
+                <p className="text-lg sm:text-2xl font-bold">{production.length}</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">Production</p>
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-0 shadow-md">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                <ShoppingCart className="h-5 w-5 text-purple-600" />
+            <CardContent className="p-2 sm:p-4 flex flex-col sm:flex-row items-center gap-1 sm:gap-3">
+              <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
+                <DollarSign className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-600" />
               </div>
-              <div>
-                <p className="text-2xl font-bold">{purchases.length}</p>
-                <p className="text-xs text-muted-foreground">Purchases</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-0 shadow-md">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-                <Wallet className="h-5 w-5 text-red-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{expenses.length}</p>
-                <p className="text-xs text-muted-foreground">Expenses</p>
+              <div className="text-center sm:text-left">
+                <p className="text-lg sm:text-2xl font-bold">{sales.length}</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">Sales</p>
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-0 shadow-md">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
-                <AlertTriangle className="h-5 w-5 text-orange-600" />
+            <CardContent className="p-2 sm:p-4 flex flex-col sm:flex-row items-center gap-1 sm:gap-3">
+              <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600" />
               </div>
-              <div>
-                <p className="text-2xl font-bold">{problems.filter((p) => p.status === "OPEN").length}</p>
-                <p className="text-xs text-muted-foreground">Open Issues</p>
+              <div className="text-center sm:text-left">
+                <p className="text-lg sm:text-2xl font-bold">{purchases.length}</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">Purchases</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 shadow-md">
+            <CardContent className="p-2 sm:p-4 flex flex-col sm:flex-row items-center gap-1 sm:gap-3">
+              <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                <Wallet className="h-4 w-4 sm:h-5 sm:w-5 text-red-600" />
+              </div>
+              <div className="text-center sm:text-left">
+                <p className="text-lg sm:text-2xl font-bold">{expenses.length}</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">Expenses</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 shadow-md">
+            <CardContent className="p-2 sm:p-4 flex flex-col sm:flex-row items-center gap-1 sm:gap-3">
+              <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+                <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600" />
+              </div>
+              <div className="text-center sm:text-left">
+                <p className="text-lg sm:text-2xl font-bold">{problems.filter((p) => p.status === "OPEN").length}</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">Open Issues</p>
               </div>
             </CardContent>
           </Card>
         </div>
 
         {/* Tabs with Data */}
-        <Tabs defaultValue="attendance" className="space-y-4">
-          <TabsList className="grid grid-cols-3 sm:grid-cols-6 gap-2 h-auto p-1">
-            <TabsTrigger value="attendance" className="text-xs sm:text-sm">Attendance</TabsTrigger>
-            <TabsTrigger value="production" className="text-xs sm:text-sm">Production</TabsTrigger>
-            <TabsTrigger value="sales" className="text-xs sm:text-sm">Sales</TabsTrigger>
-            <TabsTrigger value="purchases" className="text-xs sm:text-sm">Purchases</TabsTrigger>
-            <TabsTrigger value="expenses" className="text-xs sm:text-sm">Expenses</TabsTrigger>
-            <TabsTrigger value="problems" className="text-xs sm:text-sm">Problems</TabsTrigger>
+        <Tabs defaultValue="attendance" className="space-y-3 sm:space-y-4">
+          <TabsList className="grid grid-cols-3 sm:grid-cols-6 gap-1 sm:gap-2 h-auto p-1">
+            <TabsTrigger value="attendance" className="text-[10px] sm:text-sm px-1 sm:px-3 py-1.5">Attendance</TabsTrigger>
+            <TabsTrigger value="production" className="text-[10px] sm:text-sm px-1 sm:px-3 py-1.5">Production</TabsTrigger>
+            <TabsTrigger value="sales" className="text-[10px] sm:text-sm px-1 sm:px-3 py-1.5">Sales</TabsTrigger>
+            <TabsTrigger value="purchases" className="text-[10px] sm:text-sm px-1 sm:px-3 py-1.5">Purchases</TabsTrigger>
+            <TabsTrigger value="expenses" className="text-[10px] sm:text-sm px-1 sm:px-3 py-1.5">Expenses</TabsTrigger>
+            <TabsTrigger value="problems" className="text-[10px] sm:text-sm px-1 sm:px-3 py-1.5">Problems</TabsTrigger>
           </TabsList>
 
           <TabsContent value="attendance">
             <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Clock className="h-5 w-5" />
+              <CardHeader className="p-3 sm:p-6">
+                <CardTitle className="flex items-center gap-2 text-sm sm:text-lg">
+                  <Clock className="h-4 w-4 sm:h-5 sm:w-5" />
                   Attendance Records
                 </CardTitle>
-                <CardDescription>Real-time attendance from all plant managers</CardDescription>
+                <CardDescription className="text-xs sm:text-sm">Real-time attendance from all plant managers</CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-3 max-h-[500px] overflow-y-auto">
+              <CardContent className="p-3 sm:p-6 pt-0">
+                <div className="space-y-2 sm:space-y-3 max-h-[400px] sm:max-h-[500px] overflow-y-auto">
                   {attendance.map((record) => (
-                    <div key={record.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                      <div>
-                        <p className="font-medium">{getUserName(record.user_id)}</p>
-                        <p className="text-sm text-muted-foreground">{format(new Date(record.date), "PPP")}</p>
+                    <div key={record.id} className="flex items-center justify-between p-2 sm:p-3 rounded-lg bg-muted/50">
+                      <div className="min-w-0">
+                        <p className="font-medium text-xs sm:text-sm truncate">{getUserName(record.user_id)}</p>
+                        <p className="text-[10px] sm:text-sm text-muted-foreground">{format(new Date(record.date), "PP")}</p>
                       </div>
-                      <div className="text-right">
-                        <p className="text-sm">
-                          In: {formatTime(record.punch_in_time)} | Out: {formatTime(record.punch_out_time)}
+                      <div className="text-right flex-shrink-0">
+                        <p className="text-[10px] sm:text-sm">
+                          {formatTime(record.punch_in_time)} - {formatTime(record.punch_out_time)}
                         </p>
-                        <Badge variant={record.status === "PRESENT" ? "default" : "secondary"}>
+                        <Badge variant={record.status === "PRESENT" ? "default" : "secondary"} className="text-[10px] sm:text-xs">
                           {record.status || "PENDING"}
                         </Badge>
                       </div>
                     </div>
                   ))}
                   {attendance.length === 0 && (
-                    <p className="text-center text-muted-foreground py-8">No attendance records</p>
+                    <p className="text-center text-muted-foreground py-6 sm:py-8 text-xs sm:text-sm">No attendance records</p>
                   )}
                 </div>
               </CardContent>
@@ -428,33 +428,33 @@ export default function AdminDashboard() {
 
           <TabsContent value="production">
             <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Factory className="h-5 w-5" />
+              <CardHeader className="p-3 sm:p-6">
+                <CardTitle className="flex items-center gap-2 text-sm sm:text-lg">
+                  <Factory className="h-4 w-4 sm:h-5 sm:w-5" />
                   Production Records
                 </CardTitle>
-                <CardDescription>Real-time production logs from all plants</CardDescription>
+                <CardDescription className="text-xs sm:text-sm">Real-time production logs from all plants</CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-3 max-h-[500px] overflow-y-auto">
+              <CardContent className="p-3 sm:p-6 pt-0">
+                <div className="space-y-2 sm:space-y-3 max-h-[400px] sm:max-h-[500px] overflow-y-auto">
                   {production.map((record) => (
-                    <div key={record.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                      <div>
-                        <p className="font-medium">{record.product_name}</p>
-                        <p className="text-sm text-muted-foreground">
+                    <div key={record.id} className="flex items-center justify-between p-2 sm:p-3 rounded-lg bg-muted/50">
+                      <div className="min-w-0">
+                        <p className="font-medium text-xs sm:text-sm truncate">{record.product_name}</p>
+                        <p className="text-[10px] sm:text-sm text-muted-foreground truncate">
                           {getUserName(record.user_id)} • {record.labour_name}
                         </p>
                       </div>
-                      <div className="text-right">
-                        <p className="font-semibold">
+                      <div className="text-right flex-shrink-0">
+                        <p className="font-semibold text-xs sm:text-sm">
                           {record.quantity} {record.unit}
                         </p>
-                        <p className="text-sm text-muted-foreground">{format(new Date(record.date), "PPP")}</p>
+                        <p className="text-[10px] sm:text-sm text-muted-foreground">{format(new Date(record.date), "PP")}</p>
                       </div>
                     </div>
                   ))}
                   {production.length === 0 && (
-                    <p className="text-center text-muted-foreground py-8">No production records</p>
+                    <p className="text-center text-muted-foreground py-6 sm:py-8 text-xs sm:text-sm">No production records</p>
                   )}
                 </div>
               </CardContent>
@@ -463,33 +463,33 @@ export default function AdminDashboard() {
 
           <TabsContent value="sales">
             <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <DollarSign className="h-5 w-5" />
+              <CardHeader className="p-3 sm:p-6">
+                <CardTitle className="flex items-center gap-2 text-sm sm:text-lg">
+                  <DollarSign className="h-4 w-4 sm:h-5 sm:w-5" />
                   Sales Records
                 </CardTitle>
-                <CardDescription>Real-time sales from all plant managers</CardDescription>
+                <CardDescription className="text-xs sm:text-sm">Real-time sales from all plant managers</CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-3 max-h-[500px] overflow-y-auto">
+              <CardContent className="p-3 sm:p-6 pt-0">
+                <div className="space-y-2 sm:space-y-3 max-h-[400px] sm:max-h-[500px] overflow-y-auto">
                   {sales.map((record) => (
-                    <div key={record.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                      <div>
-                        <p className="font-medium">{record.customer_name}</p>
-                        <p className="text-sm text-muted-foreground">
+                    <div key={record.id} className="flex items-center justify-between p-2 sm:p-3 rounded-lg bg-muted/50">
+                      <div className="min-w-0">
+                        <p className="font-medium text-xs sm:text-sm truncate">{record.customer_name}</p>
+                        <p className="text-[10px] sm:text-sm text-muted-foreground truncate">
                           {record.product_name} • {getUserName(record.user_id)}
                         </p>
                       </div>
-                      <div className="text-right">
-                        <p className="font-semibold">₹{record.total_amount.toLocaleString()}</p>
-                        <Badge variant={record.payment_status === "PAID" ? "default" : "secondary"}>
+                      <div className="text-right flex-shrink-0">
+                        <p className="font-semibold text-xs sm:text-sm">₹{record.total_amount.toLocaleString()}</p>
+                        <Badge variant={record.payment_status === "PAID" ? "default" : "secondary"} className="text-[10px] sm:text-xs">
                           {record.payment_status}
                         </Badge>
                       </div>
                     </div>
                   ))}
                   {sales.length === 0 && (
-                    <p className="text-center text-muted-foreground py-8">No sales records</p>
+                    <p className="text-center text-muted-foreground py-6 sm:py-8 text-xs sm:text-sm">No sales records</p>
                   )}
                 </div>
               </CardContent>
@@ -498,33 +498,33 @@ export default function AdminDashboard() {
 
           <TabsContent value="purchases">
             <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <ShoppingCart className="h-5 w-5" />
+              <CardHeader className="p-3 sm:p-6">
+                <CardTitle className="flex items-center gap-2 text-sm sm:text-lg">
+                  <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
                   Purchase Records
                 </CardTitle>
-                <CardDescription>Real-time purchases from all plant managers</CardDescription>
+                <CardDescription className="text-xs sm:text-sm">Real-time purchases from all plant managers</CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-3 max-h-[500px] overflow-y-auto">
+              <CardContent className="p-3 sm:p-6 pt-0">
+                <div className="space-y-2 sm:space-y-3 max-h-[400px] sm:max-h-[500px] overflow-y-auto">
                   {purchases.map((record) => (
-                    <div key={record.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                      <div>
-                        <p className="font-medium">{record.vendor_name}</p>
-                        <p className="text-sm text-muted-foreground">
+                    <div key={record.id} className="flex items-center justify-between p-2 sm:p-3 rounded-lg bg-muted/50">
+                      <div className="min-w-0">
+                        <p className="font-medium text-xs sm:text-sm truncate">{record.vendor_name}</p>
+                        <p className="text-[10px] sm:text-sm text-muted-foreground truncate">
                           {record.item_name} • {getUserName(record.user_id)}
                         </p>
                       </div>
-                      <div className="text-right">
-                        <p className="font-semibold">₹{record.total_amount.toLocaleString()}</p>
-                        <Badge variant={record.payment_status === "PAID" ? "default" : "secondary"}>
+                      <div className="text-right flex-shrink-0">
+                        <p className="font-semibold text-xs sm:text-sm">₹{record.total_amount.toLocaleString()}</p>
+                        <Badge variant={record.payment_status === "PAID" ? "default" : "secondary"} className="text-[10px] sm:text-xs">
                           {record.payment_status}
                         </Badge>
                       </div>
                     </div>
                   ))}
                   {purchases.length === 0 && (
-                    <p className="text-center text-muted-foreground py-8">No purchase records</p>
+                    <p className="text-center text-muted-foreground py-6 sm:py-8 text-xs sm:text-sm">No purchase records</p>
                   )}
                 </div>
               </CardContent>
@@ -533,31 +533,31 @@ export default function AdminDashboard() {
 
           <TabsContent value="expenses">
             <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Wallet className="h-5 w-5" />
+              <CardHeader className="p-3 sm:p-6">
+                <CardTitle className="flex items-center gap-2 text-sm sm:text-lg">
+                  <Wallet className="h-4 w-4 sm:h-5 sm:w-5" />
                   Expense Records
                 </CardTitle>
-                <CardDescription>Real-time expenses from all plant managers</CardDescription>
+                <CardDescription className="text-xs sm:text-sm">Real-time expenses from all plant managers</CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-3 max-h-[500px] overflow-y-auto">
+              <CardContent className="p-3 sm:p-6 pt-0">
+                <div className="space-y-2 sm:space-y-3 max-h-[400px] sm:max-h-[500px] overflow-y-auto">
                   {expenses.map((record) => (
-                    <div key={record.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                      <div>
-                        <p className="font-medium">{record.expense_head}</p>
-                        <p className="text-sm text-muted-foreground">
+                    <div key={record.id} className="flex items-center justify-between p-2 sm:p-3 rounded-lg bg-muted/50">
+                      <div className="min-w-0">
+                        <p className="font-medium text-xs sm:text-sm truncate">{record.expense_head}</p>
+                        <p className="text-[10px] sm:text-sm text-muted-foreground truncate">
                           {record.description} • {getUserName(record.user_id)}
                         </p>
                       </div>
-                      <div className="text-right">
-                        <p className="font-semibold">₹{record.amount.toLocaleString()}</p>
-                        <p className="text-sm text-muted-foreground">{format(new Date(record.date), "PPP")}</p>
+                      <div className="text-right flex-shrink-0">
+                        <p className="font-semibold text-xs sm:text-sm">₹{record.amount.toLocaleString()}</p>
+                        <p className="text-[10px] sm:text-sm text-muted-foreground">{format(new Date(record.date), "PP")}</p>
                       </div>
                     </div>
                   ))}
                   {expenses.length === 0 && (
-                    <p className="text-center text-muted-foreground py-8">No expense records</p>
+                    <p className="text-center text-muted-foreground py-6 sm:py-8 text-xs sm:text-sm">No expense records</p>
                   )}
                 </div>
               </CardContent>
@@ -566,33 +566,33 @@ export default function AdminDashboard() {
 
           <TabsContent value="problems">
             <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5" />
+              <CardHeader className="p-3 sm:p-6">
+                <CardTitle className="flex items-center gap-2 text-sm sm:text-lg">
+                  <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5" />
                   Problem Reports
                 </CardTitle>
-                <CardDescription>Real-time issues from all plant managers</CardDescription>
+                <CardDescription className="text-xs sm:text-sm">Real-time issues from all plant managers</CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-3 max-h-[500px] overflow-y-auto">
+              <CardContent className="p-3 sm:p-6 pt-0">
+                <div className="space-y-2 sm:space-y-3 max-h-[400px] sm:max-h-[500px] overflow-y-auto">
                   {problems.map((record) => (
-                    <div key={record.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                      <div>
-                        <p className="font-medium">{record.problem_type}</p>
-                        <p className="text-sm text-muted-foreground">
+                    <div key={record.id} className="flex items-center justify-between p-2 sm:p-3 rounded-lg bg-muted/50">
+                      <div className="min-w-0">
+                        <p className="font-medium text-xs sm:text-sm truncate">{record.problem_type}</p>
+                        <p className="text-[10px] sm:text-sm text-muted-foreground truncate">
                           {record.description} • {getUserName(record.user_id)}
                         </p>
                       </div>
-                      <div className="text-right">
-                        <Badge variant={record.status === "OPEN" ? "destructive" : "default"}>
+                      <div className="text-right flex-shrink-0">
+                        <Badge variant={record.status === "OPEN" ? "destructive" : "default"} className="text-[10px] sm:text-xs">
                           {record.status}
                         </Badge>
-                        <p className="text-sm text-muted-foreground">{format(new Date(record.date), "PPP")}</p>
+                        <p className="text-[10px] sm:text-sm text-muted-foreground">{format(new Date(record.date), "PP")}</p>
                       </div>
                     </div>
                   ))}
                   {problems.length === 0 && (
-                    <p className="text-center text-muted-foreground py-8">No problem reports</p>
+                    <p className="text-center text-muted-foreground py-6 sm:py-8 text-xs sm:text-sm">No problem reports</p>
                   )}
                 </div>
               </CardContent>
