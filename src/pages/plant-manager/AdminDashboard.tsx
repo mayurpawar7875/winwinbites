@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -110,6 +110,8 @@ export default function AdminDashboard() {
 
   const { isAdmin } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get("tab") || "attendance";
 
   useEffect(() => {
     if (!isAdmin) {
@@ -381,7 +383,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Tabs with Data */}
-        <Tabs defaultValue="attendance" className="space-y-3 sm:space-y-4">
+        <Tabs defaultValue={initialTab} className="space-y-3 sm:space-y-4">
           <TabsList className="grid grid-cols-3 sm:grid-cols-6 gap-1 sm:gap-2 h-auto p-1">
             <TabsTrigger value="attendance" className="text-[10px] sm:text-sm px-1 sm:px-3 py-1.5">Attendance</TabsTrigger>
             <TabsTrigger value="production" className="text-[10px] sm:text-sm px-1 sm:px-3 py-1.5">Production</TabsTrigger>

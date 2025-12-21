@@ -243,7 +243,7 @@ export default function Dashboard() {
                   <Card
                     key={stat.id}
                     className="border-0 shadow-md cursor-pointer hover:shadow-lg transition-all"
-                    onClick={() => navigate("/plant-manager/admin")}
+                    onClick={() => navigate(`/plant-manager/admin?tab=${stat.id}`)}
                   >
                     <div className="p-2 sm:p-4 flex flex-col items-center text-center gap-1 sm:gap-2">
                       <div
