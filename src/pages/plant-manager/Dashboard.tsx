@@ -142,55 +142,59 @@ export default function Dashboard() {
           </p>
         </div>
 
-        {/* Module Grid */}
-        <div className="grid grid-cols-2 gap-2 sm:gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {modules.map((module) => {
-            const Icon = module.icon;
-            return (
-              <Card
-                key={module.id}
-                className="group cursor-pointer border-0 shadow-md hover:shadow-lg transition-all duration-200 active:scale-[0.98]"
-                onClick={() => navigate(module.path)}
-              >
-                <div className="p-3 sm:p-6 flex flex-col items-center text-center gap-2 sm:gap-3">
-                  <div
-                    className="h-10 w-10 sm:h-16 sm:w-16 rounded-xl sm:rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110"
-                    style={{ backgroundColor: `${module.color}15` }}
-                  >
-                    <Icon
-                      className="h-5 w-5 sm:h-8 sm:w-8"
-                      style={{ color: module.color }}
-                    />
+        {/* Module Grid - Only show for non-admin users */}
+        {!isAdmin && (
+          <div className="grid grid-cols-2 gap-2 sm:gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            {modules.map((module) => {
+              const Icon = module.icon;
+              return (
+                <Card
+                  key={module.id}
+                  className="group cursor-pointer border-0 shadow-md hover:shadow-lg transition-all duration-200 active:scale-[0.98]"
+                  onClick={() => navigate(module.path)}
+                >
+                  <div className="p-3 sm:p-6 flex flex-col items-center text-center gap-2 sm:gap-3">
+                    <div
+                      className="h-10 w-10 sm:h-16 sm:w-16 rounded-xl sm:rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110"
+                      style={{ backgroundColor: `${module.color}15` }}
+                    >
+                      <Icon
+                        className="h-5 w-5 sm:h-8 sm:w-8"
+                        style={{ color: module.color }}
+                      />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-foreground text-xs sm:text-base">
+                        {module.title}
+                      </h3>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground hidden sm:block">
+                        {module.description}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-foreground text-xs sm:text-base">
-                      {module.title}
-                    </h3>
-                    <p className="text-[10px] sm:text-xs text-muted-foreground hidden sm:block">
-                      {module.description}
-                    </p>
-                  </div>
-                </div>
-              </Card>
-            );
-          })}
-        </div>
-
-        {/* History Link */}
-        <Card
-          className="mt-4 sm:mt-6 cursor-pointer border-0 shadow-md hover:shadow-lg transition-all duration-200 active:scale-[0.99]"
-          onClick={() => navigate("/plant-manager/history")}
-        >
-          <div className="p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
-            <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-lg sm:rounded-xl bg-secondary flex items-center justify-center">
-              <History className="h-5 w-5 sm:h-6 sm:w-6 text-secondary-foreground" />
-            </div>
-            <div className="flex-1">
-              <h3 className="font-semibold text-sm sm:text-base text-foreground">View History</h3>
-              <p className="text-xs sm:text-sm text-muted-foreground">Browse past entries</p>
-            </div>
+                </Card>
+              );
+            })}
           </div>
-        </Card>
+        )}
+
+        {/* History Link - Only show for non-admin users */}
+        {!isAdmin && (
+          <Card
+            className="mt-4 sm:mt-6 cursor-pointer border-0 shadow-md hover:shadow-lg transition-all duration-200 active:scale-[0.99]"
+            onClick={() => navigate("/plant-manager/history")}
+          >
+            <div className="p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
+              <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-lg sm:rounded-xl bg-secondary flex items-center justify-center">
+                <History className="h-5 w-5 sm:h-6 sm:w-6 text-secondary-foreground" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-sm sm:text-base text-foreground">View History</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground">Browse past entries</p>
+              </div>
+            </div>
+          </Card>
+        )}
 
         {/* Admin: User Management */}
         {isAdmin && (
