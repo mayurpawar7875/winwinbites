@@ -111,7 +111,9 @@ export default function AdminDashboard() {
   const { isAdmin } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const initialTab = searchParams.get("tab") || "attendance";
+  const tabFromUrl = searchParams.get("tab");
+  const initialTab = tabFromUrl || "attendance";
+  const showAllTabs = !tabFromUrl; // Show all tabs only when no specific tab is selected
 
   useEffect(() => {
     if (!isAdmin) {
@@ -309,14 +311,16 @@ export default function AdminDashboard() {
       <main className="container px-3 sm:px-4 py-4 sm:py-6">
         {/* Tabs with Data */}
         <Tabs defaultValue={initialTab} className="space-y-3 sm:space-y-4">
-          <TabsList className="grid grid-cols-3 sm:grid-cols-6 gap-1 sm:gap-2 h-auto p-1">
-            <TabsTrigger value="attendance" className="text-[10px] sm:text-sm px-1 sm:px-3 py-1.5">Attendance</TabsTrigger>
-            <TabsTrigger value="production" className="text-[10px] sm:text-sm px-1 sm:px-3 py-1.5">Production</TabsTrigger>
-            <TabsTrigger value="sales" className="text-[10px] sm:text-sm px-1 sm:px-3 py-1.5">Sales</TabsTrigger>
-            <TabsTrigger value="purchases" className="text-[10px] sm:text-sm px-1 sm:px-3 py-1.5">Purchases</TabsTrigger>
-            <TabsTrigger value="expenses" className="text-[10px] sm:text-sm px-1 sm:px-3 py-1.5">Expenses</TabsTrigger>
-            <TabsTrigger value="problems" className="text-[10px] sm:text-sm px-1 sm:px-3 py-1.5">Problems</TabsTrigger>
-          </TabsList>
+          {showAllTabs && (
+            <TabsList className="grid grid-cols-3 sm:grid-cols-6 gap-1 sm:gap-2 h-auto p-1">
+              <TabsTrigger value="attendance" className="text-[10px] sm:text-sm px-1 sm:px-3 py-1.5">Attendance</TabsTrigger>
+              <TabsTrigger value="production" className="text-[10px] sm:text-sm px-1 sm:px-3 py-1.5">Production</TabsTrigger>
+              <TabsTrigger value="sales" className="text-[10px] sm:text-sm px-1 sm:px-3 py-1.5">Sales</TabsTrigger>
+              <TabsTrigger value="purchases" className="text-[10px] sm:text-sm px-1 sm:px-3 py-1.5">Purchases</TabsTrigger>
+              <TabsTrigger value="expenses" className="text-[10px] sm:text-sm px-1 sm:px-3 py-1.5">Expenses</TabsTrigger>
+              <TabsTrigger value="problems" className="text-[10px] sm:text-sm px-1 sm:px-3 py-1.5">Problems</TabsTrigger>
+            </TabsList>
+          )}
 
           <TabsContent value="attendance">
             <Card className="border-0 shadow-lg">
