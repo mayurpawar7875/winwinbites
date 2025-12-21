@@ -112,8 +112,10 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const tabFromUrl = searchParams.get("tab");
+  const dateFromUrl = searchParams.get("date");
   const initialTab = tabFromUrl || "attendance";
   const showAllTabs = !tabFromUrl; // Show all tabs only when no specific tab is selected
+  const filterDate = dateFromUrl || format(new Date(), "yyyy-MM-dd");
 
   useEffect(() => {
     if (!isAdmin) {
@@ -124,7 +126,7 @@ export default function AdminDashboard() {
 
     fetchAllData();
     setupRealtimeSubscriptions();
-  }, [isAdmin, navigate]);
+  }, [isAdmin, navigate, filterDate]);
 
   const fetchAllData = async () => {
     setIsLoading(true);
@@ -138,12 +140,12 @@ export default function AdminDashboard() {
         problemsRes,
         usersRes,
       ] = await Promise.all([
-        supabase.from("attendance").select("*").order("created_at", { ascending: false }).limit(50),
-        supabase.from("production").select("*").order("created_at", { ascending: false }).limit(50),
-        supabase.from("sales").select("*").order("created_at", { ascending: false }).limit(50),
-        supabase.from("purchases").select("*").order("created_at", { ascending: false }).limit(50),
-        supabase.from("expenses").select("*").order("created_at", { ascending: false }).limit(50),
-        supabase.from("problems").select("*").order("created_at", { ascending: false }).limit(50),
+        supabase.from("attendance").select("*").eq("date", filterDate).order("created_at", { ascending: false }).limit(50),
+        supabase.from("production").select("*").eq("date", filterDate).order("created_at", { ascending: false }).limit(50),
+        supabase.from("sales").select("*").eq("date", filterDate).order("created_at", { ascending: false }).limit(50),
+        supabase.from("purchases").select("*").eq("date", filterDate).order("created_at", { ascending: false }).limit(50),
+        supabase.from("expenses").select("*").eq("date", filterDate).order("created_at", { ascending: false }).limit(50),
+        supabase.from("problems").select("*").eq("date", filterDate).order("created_at", { ascending: false }).limit(50),
         supabase.from("profiles").select("*"),
       ]);
 
@@ -154,6 +156,7 @@ export default function AdminDashboard() {
       if (expensesRes.data) setExpenses(expensesRes.data);
       if (problemsRes.data) setProblems(problemsRes.data);
       if (usersRes.data) setUsers(usersRes.data);
+      setLastUpdate(new Date());
     } catch (error) {
       console.error("Error fetching data:", error);
       toast.error("Failed to load data");
@@ -290,7 +293,9 @@ export default function AdminDashboard() {
               </div>
               <div>
                 <h1 className="font-bold text-sm sm:text-base text-foreground">Admin Dashboard</h1>
-                <p className="text-[10px] sm:text-xs text-muted-foreground">Real-time Monitor</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">
+                  {format(new Date(filterDate), "PPP")}
+                </p>
               </div>
             </div>
           </div>

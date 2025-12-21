@@ -4,7 +4,11 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 import {
   Clock,
   Factory,
@@ -19,6 +23,7 @@ import {
   User,
   Shield,
   RefreshCw,
+  CalendarIcon,
 } from "lucide-react";
 import logo from "@/assets/win-win-bites-logo.jpg";
 
@@ -103,6 +108,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   
   // Admin stats state
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [stats, setStats] = useState({
     attendance: 0,
     production: 0,
@@ -115,22 +121,22 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (isAdmin) {
-      fetchAdminStats();
+      fetchAdminStats(selectedDate);
       setupRealtimeSubscriptions();
     }
-  }, [isAdmin]);
+  }, [isAdmin, selectedDate]);
 
-  const fetchAdminStats = async () => {
+  const fetchAdminStats = async (date: Date) => {
     setIsRefreshing(true);
     try {
-      const today = new Date().toISOString().split('T')[0];
+      const dateStr = format(date, "yyyy-MM-dd");
       
       const [attendanceRes, productionRes, salesRes, purchasesRes, expensesRes, problemsRes] = await Promise.all([
-        supabase.from("attendance").select("id", { count: "exact" }).eq("date", today),
-        supabase.from("production").select("id", { count: "exact" }).eq("date", today),
-        supabase.from("sales").select("id", { count: "exact" }).eq("date", today),
-        supabase.from("purchases").select("id", { count: "exact" }).eq("date", today),
-        supabase.from("expenses").select("id", { count: "exact" }).eq("date", today),
+        supabase.from("attendance").select("id", { count: "exact" }).eq("date", dateStr),
+        supabase.from("production").select("id", { count: "exact" }).eq("date", dateStr),
+        supabase.from("sales").select("id", { count: "exact" }).eq("date", dateStr),
+        supabase.from("purchases").select("id", { count: "exact" }).eq("date", dateStr),
+        supabase.from("expenses").select("id", { count: "exact" }).eq("date", dateStr),
         supabase.from("problems").select("id", { count: "exact" }).eq("status", "OPEN"),
       ]);
 
@@ -152,12 +158,12 @@ export default function Dashboard() {
   const setupRealtimeSubscriptions = () => {
     const channel = supabase
       .channel("admin-dashboard-stats")
-      .on("postgres_changes", { event: "*", schema: "public", table: "attendance" }, () => fetchAdminStats())
-      .on("postgres_changes", { event: "*", schema: "public", table: "production" }, () => fetchAdminStats())
-      .on("postgres_changes", { event: "*", schema: "public", table: "sales" }, () => fetchAdminStats())
-      .on("postgres_changes", { event: "*", schema: "public", table: "purchases" }, () => fetchAdminStats())
-      .on("postgres_changes", { event: "*", schema: "public", table: "expenses" }, () => fetchAdminStats())
-      .on("postgres_changes", { event: "*", schema: "public", table: "problems" }, () => fetchAdminStats())
+      .on("postgres_changes", { event: "*", schema: "public", table: "attendance" }, () => fetchAdminStats(selectedDate))
+      .on("postgres_changes", { event: "*", schema: "public", table: "production" }, () => fetchAdminStats(selectedDate))
+      .on("postgres_changes", { event: "*", schema: "public", table: "sales" }, () => fetchAdminStats(selectedDate))
+      .on("postgres_changes", { event: "*", schema: "public", table: "purchases" }, () => fetchAdminStats(selectedDate))
+      .on("postgres_changes", { event: "*", schema: "public", table: "expenses" }, () => fetchAdminStats(selectedDate))
+      .on("postgres_changes", { event: "*", schema: "public", table: "problems" }, () => fetchAdminStats(selectedDate))
       .subscribe();
 
     return () => {
@@ -193,7 +199,7 @@ export default function Dashboard() {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={fetchAdminStats}
+                onClick={() => fetchAdminStats(selectedDate)}
                 disabled={isRefreshing}
                 className="h-8 w-8 sm:h-10 sm:w-10 text-muted-foreground"
               >
@@ -235,6 +241,42 @@ export default function Dashboard() {
         {/* Admin Stats Grid */}
         {isAdmin && (
           <>
+            {/* Date Picker */}
+            <div className="flex items-center justify-between mb-4">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "justify-start text-left font-normal text-xs sm:text-sm h-8 sm:h-10",
+                      !selectedDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                    {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={(date) => date && setSelectedDate(date)}
+                    disabled={(date) => date > new Date()}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSelectedDate(new Date())}
+                className="text-xs text-primary h-8"
+              >
+                Today
+              </Button>
+            </div>
+
             <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-4">
               {adminStats.map((stat) => {
                 const Icon = stat.icon;
@@ -243,7 +285,7 @@ export default function Dashboard() {
                   <Card
                     key={stat.id}
                     className="border-0 shadow-md cursor-pointer hover:shadow-lg transition-all"
-                    onClick={() => navigate(`/plant-manager/admin?tab=${stat.id}`)}
+                    onClick={() => navigate(`/plant-manager/admin?tab=${stat.id}&date=${format(selectedDate, "yyyy-MM-dd")}`)}
                   >
                     <div className="p-2 sm:p-4 flex flex-col items-center text-center gap-1 sm:gap-2">
                       <div
@@ -263,7 +305,7 @@ export default function Dashboard() {
             {/* Admin Navigation Cards */}
             <Card
               className="cursor-pointer border-0 shadow-md hover:shadow-lg transition-all duration-200 active:scale-[0.99] bg-primary/5"
-              onClick={() => navigate("/plant-manager/admin")}
+              onClick={() => navigate(`/plant-manager/admin?date=${format(selectedDate, "yyyy-MM-dd")}`)}
             >
               <div className="p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
                 <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-lg sm:rounded-xl gradient-primary flex items-center justify-center">
