@@ -611,7 +611,7 @@ export type Database = {
       is_user_active: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      app_role: "admin" | "plantManager"
+      app_role: "admin" | "plantManager" | "productionManager" | "accountant"
       collection_payment_mode: "CASH" | "UPI" | "ONLINE" | "BANK"
       invoice_payment_status: "UNPAID" | "PARTIAL" | "PAID"
       party_type: "VENDOR" | "CUSTOMER"
@@ -752,7 +752,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "plantManager"],
+      app_role: ["admin", "plantManager", "productionManager", "accountant"],
       collection_payment_mode: ["CASH", "UPI", "ONLINE", "BANK"],
       invoice_payment_status: ["UNPAID", "PARTIAL", "PAID"],
       party_type: ["VENDOR", "CUSTOMER"],
