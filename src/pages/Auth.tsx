@@ -101,9 +101,11 @@ export default function Auth() {
         }
 
         toast.success("Welcome back!");
+        // Navigation will be handled by useEffect watching user state
       }
     } catch (error) {
       toast.error("An unexpected error occurred");
+    } finally {
       setIsLoading(false);
     }
   };
