@@ -6,15 +6,23 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import { z } from "zod";
 import logo from "@/assets/win-win-bites-logo.jpg";
 
+const ROLES = [
+  { value: "plantManager", label: "Plant Manager" },
+  { value: "productionManager", label: "Production Manager" },
+  { value: "accountant", label: "Accountant" },
+] as const;
+
 const authSchema = z.object({
   email: z.string().trim().email("Please enter a valid email").max(255, "Email too long"),
   password: z.string().min(6, "Password must be at least 6 characters").max(72, "Password too long"),
   name: z.string().trim().min(2, "Name must be at least 2 characters").max(100, "Name too long").optional(),
+  role: z.enum(["plantManager", "productionManager", "accountant"]).optional(),
 });
 
 export default function Auth() {
@@ -22,6 +30,7 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [role, setRole] = useState<string>("plantManager");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   
@@ -53,7 +62,7 @@ export default function Auth() {
     e.preventDefault();
     
     const validationData = isSignUp 
-      ? { email, password, name } 
+      ? { email, password, name, role } 
       : { email, password };
     
     const validation = authSchema.safeParse(validationData);
@@ -67,11 +76,16 @@ export default function Auth() {
       return;
     }
 
+    if (isSignUp && !role) {
+      toast.error("Please select a role");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       if (isSignUp) {
-        const { error } = await signUp(email, password, name);
+        const { error } = await signUp(email, password, name, role);
         
         if (error) {
           if (error.message.includes("User already registered")) {
@@ -115,6 +129,7 @@ export default function Auth() {
     setEmail("");
     setPassword("");
     setName("");
+    setRole("plantManager");
   };
 
   return (
@@ -144,20 +159,37 @@ export default function Auth() {
           <CardContent className="pb-4 sm:pb-6">
             <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
               {isSignUp && (
-                <div className="space-y-1.5 sm:space-y-2">
-                  <Label htmlFor="name" className="text-sm">Full Name</Label>
-                  <Input
-                    id="name"
-                    type="text"
-                    placeholder="John Doe"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required={isSignUp}
-                    autoComplete="name"
-                    className="h-10 sm:h-12 text-sm sm:text-base"
-                    maxLength={100}
-                  />
-                </div>
+                <>
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="name" className="text-sm">Full Name</Label>
+                    <Input
+                      id="name"
+                      type="text"
+                      placeholder="John Doe"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      required={isSignUp}
+                      autoComplete="name"
+                      className="h-10 sm:h-12 text-sm sm:text-base"
+                      maxLength={100}
+                    />
+                  </div>
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="role" className="text-sm">Role</Label>
+                    <Select value={role} onValueChange={setRole}>
+                      <SelectTrigger className="h-10 sm:h-12 text-sm sm:text-base">
+                        <SelectValue placeholder="Select your role" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {ROLES.map((r) => (
+                          <SelectItem key={r.value} value={r.value}>
+                            {r.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </>
               )}
               
               <div className="space-y-1.5 sm:space-y-2">
