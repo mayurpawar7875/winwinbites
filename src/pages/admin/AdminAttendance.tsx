@@ -57,6 +57,7 @@ import {
   List,
   Eye,
   Image,
+  FileText,
 } from "lucide-react";
 
 interface AttendanceRecord {
@@ -341,10 +342,28 @@ export default function AdminAttendance() {
               </p>
             </div>
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="hidden sm:flex items-center gap-2"
+            onClick={() => navigate("/admin/leave-requests")}
+          >
+            <FileText className="h-4 w-4" />
+            Leave Requests
+          </Button>
         </div>
       </header>
 
       <main className="container px-3 sm:px-4 py-4 sm:py-6 space-y-4">
+        {/* Mobile Leave Requests Button */}
+        <Button
+          variant="outline"
+          className="w-full sm:hidden flex items-center justify-center gap-2"
+          onClick={() => navigate("/admin/leave-requests")}
+        >
+          <FileText className="h-4 w-4" />
+          Manage Leave & Overtime Requests
+        </Button>
         <Tabs defaultValue="list" className="space-y-4">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="list" className="flex items-center gap-2">

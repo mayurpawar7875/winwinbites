@@ -21,6 +21,7 @@ import History from "./pages/plant-manager/History";
 import UserManagement from "./pages/plant-manager/UserManagement";
 import AdminDashboard from "./pages/plant-manager/AdminDashboard";
 import AdminAttendance from "./pages/admin/AdminAttendance";
+import LeaveRequests from "./pages/admin/LeaveRequests";
 import Salary from "./pages/plant-manager/Salary";
 import NotFound from "./pages/NotFound";
 
@@ -52,6 +53,7 @@ const App = () => (
               <Route path="/plant-manager/admin" element={<AdminDashboard />} />
               <Route path="/plant-manager/salary" element={<Salary />} />
               <Route path="/admin/attendance" element={<AdminAttendance />} />
+              <Route path="/admin/leave-requests" element={<LeaveRequests />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
