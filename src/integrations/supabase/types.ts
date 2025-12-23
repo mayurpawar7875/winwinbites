@@ -149,6 +149,33 @@ export type Database = {
         }
         Relationships: []
       }
+      employee_salaries: {
+        Row: {
+          created_at: string | null
+          id: string
+          monthly_salary: number | null
+          overtime_rate: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          monthly_salary?: number | null
+          overtime_rate?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          monthly_salary?: number | null
+          overtime_rate?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       expenses: {
         Row: {
           amount: number
@@ -474,9 +501,7 @@ export type Database = {
           email: string
           id: string
           is_active: boolean | null
-          monthly_salary: number | null
           name: string
-          overtime_rate: number | null
           user_id: string
         }
         Insert: {
@@ -484,9 +509,7 @@ export type Database = {
           email: string
           id?: string
           is_active?: boolean | null
-          monthly_salary?: number | null
           name: string
-          overtime_rate?: number | null
           user_id: string
         }
         Update: {
@@ -494,9 +517,7 @@ export type Database = {
           email?: string
           id?: string
           is_active?: boolean | null
-          monthly_salary?: number | null
           name?: string
-          overtime_rate?: number | null
           user_id?: string
         }
         Relationships: []

@@ -28,6 +28,9 @@ interface UserProfile {
   user_id: string;
   name: string;
   email: string;
+}
+
+interface UserWithSalary extends UserProfile {
   monthly_salary: number;
   overtime_rate: number;
 }
@@ -73,11 +76,11 @@ export default function Salary() {
   const { isAdmin, user } = useAuth();
   const navigate = useNavigate();
   
-  const [users, setUsers] = useState<UserProfile[]>([]);
+  const [users, setUsers] = useState<UserWithSalary[]>([]);
   const [salarySlips, setSalarySlips] = useState<SalarySlip[]>([]);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
+  const [selectedUser, setSelectedUser] = useState<UserWithSalary | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [showSalaryDialog, setShowSalaryDialog] = useState(false);
@@ -93,13 +96,37 @@ export default function Salary() {
   }, [isAdmin, user, selectedMonth, selectedYear]);
 
   const fetchUsers = async () => {
-    const { data, error } = await supabase
+    // Fetch profiles
+    const { data: profilesData, error: profilesError } = await supabase
       .from("profiles")
-      .select("*")
+      .select("id, user_id, name, email")
       .eq("is_active", true);
     
-    if (data) setUsers(data);
-    if (error) console.error("Error fetching users:", error);
+    if (profilesError) {
+      console.error("Error fetching users:", profilesError);
+      return;
+    }
+
+    // Fetch salary data from employee_salaries table (admin-only)
+    const { data: salaryData, error: salaryError } = await supabase
+      .from("employee_salaries")
+      .select("user_id, monthly_salary, overtime_rate");
+    
+    if (salaryError) {
+      console.error("Error fetching salaries:", salaryError);
+    }
+
+    // Merge profile and salary data
+    const usersWithSalary: UserWithSalary[] = (profilesData || []).map(profile => {
+      const salary = salaryData?.find(s => s.user_id === profile.user_id);
+      return {
+        ...profile,
+        monthly_salary: salary?.monthly_salary || 0,
+        overtime_rate: salary?.overtime_rate || 0,
+      };
+    });
+
+    setUsers(usersWithSalary);
   };
 
   const fetchSalarySlips = async () => {
@@ -143,7 +170,7 @@ export default function Salary() {
     return workingDays;
   };
 
-  const generateSalarySlip = async (userProfile: UserProfile) => {
+  const generateSalarySlip = async (userProfile: UserWithSalary) => {
     if (!user) return;
     
     setIsGenerating(true);
@@ -235,16 +262,20 @@ export default function Salary() {
   const updateUserSalary = async () => {
     if (!selectedUser) return;
     
+    // Upsert to employee_salaries table (admin-only)
     const { error } = await supabase
-      .from("profiles")
-      .update({
+      .from("employee_salaries")
+      .upsert({
+        user_id: selectedUser.user_id,
         monthly_salary: editingSalary.monthly,
         overtime_rate: editingSalary.overtime,
-      })
-      .eq("id", selectedUser.id);
+      }, {
+        onConflict: "user_id"
+      });
 
     if (error) {
       toast.error("Failed to update salary settings");
+      console.error("Salary update error:", error);
       return;
     }
 
