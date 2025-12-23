@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/plant-manager/Dashboard";
 import Attendance from "./pages/plant-manager/Attendance";
+import AttendanceCalendar from "./pages/plant-manager/AttendanceCalendar";
 import Production from "./pages/plant-manager/Production";
 import Inventory from "./pages/plant-manager/Inventory";
 import Sales from "./pages/plant-manager/Sales";
@@ -19,6 +20,7 @@ import Problems from "./pages/plant-manager/Problems";
 import History from "./pages/plant-manager/History";
 import UserManagement from "./pages/plant-manager/UserManagement";
 import AdminDashboard from "./pages/plant-manager/AdminDashboard";
+import AdminAttendance from "./pages/admin/AdminAttendance";
 import Salary from "./pages/plant-manager/Salary";
 import NotFound from "./pages/NotFound";
 
@@ -37,6 +39,7 @@ const App = () => (
             <Route element={<ProtectedRoute />}>
               <Route path="/plant-manager/dashboard" element={<Dashboard />} />
               <Route path="/plant-manager/attendance" element={<Attendance />} />
+              <Route path="/plant-manager/attendance-calendar" element={<AttendanceCalendar />} />
               <Route path="/plant-manager/production" element={<Production />} />
               <Route path="/plant-manager/inventory" element={<Inventory />} />
               <Route path="/plant-manager/sales" element={<Sales />} />
@@ -48,6 +51,7 @@ const App = () => (
               <Route path="/plant-manager/users" element={<UserManagement />} />
               <Route path="/plant-manager/admin" element={<AdminDashboard />} />
               <Route path="/plant-manager/salary" element={<Salary />} />
+              <Route path="/admin/attendance" element={<AdminAttendance />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

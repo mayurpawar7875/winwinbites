@@ -29,6 +29,7 @@ export type Database = {
           punch_out_time: string | null
           status: string | null
           user_id: string
+          user_name: string | null
           working_hours: number | null
         }
         Insert: {
@@ -45,6 +46,7 @@ export type Database = {
           punch_out_time?: string | null
           status?: string | null
           user_id: string
+          user_name?: string | null
           working_hours?: number | null
         }
         Update: {
@@ -61,6 +63,7 @@ export type Database = {
           punch_out_time?: string | null
           status?: string | null
           user_id?: string
+          user_name?: string | null
           working_hours?: number | null
         }
         Relationships: []

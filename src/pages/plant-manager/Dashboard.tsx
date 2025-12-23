@@ -38,6 +38,14 @@ const modules = [
     color: "hsl(var(--primary))",
   },
   {
+    id: "attendance-calendar",
+    title: "Attendance Calendar",
+    description: "Monthly view",
+    icon: CalendarIcon,
+    path: "/plant-manager/attendance-calendar",
+    color: "hsl(199 89% 48%)",
+  },
+  {
     id: "production",
     title: "Production",
     description: "Daily output logs",
@@ -343,6 +351,20 @@ export default function Dashboard() {
                 <div className="flex-1">
                   <h3 className="font-semibold text-sm sm:text-base text-foreground">Salary Management</h3>
                   <p className="text-xs sm:text-sm text-muted-foreground">Generate salary slips</p>
+                </div>
+              </div>
+            </Card>
+            <Card
+              className="mt-3 cursor-pointer border-0 shadow-md hover:shadow-lg transition-all duration-200 active:scale-[0.99]"
+              onClick={() => navigate("/admin/attendance")}
+            >
+              <div className="p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
+                <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-lg sm:rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                  <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-sm sm:text-base text-foreground">Attendance Management</h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground">View all employee attendance</p>
                 </div>
               </div>
             </Card>
