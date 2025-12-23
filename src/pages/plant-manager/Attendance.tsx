@@ -210,6 +210,13 @@ export default function Attendance() {
     try {
       const photoUrl = await uploadPhoto(photoFile, "punch-in");
 
+      // Get user's name from profile for admin listing
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("name")
+        .eq("user_id", user!.id)
+        .maybeSingle();
+
       const { error } = await supabase.from("attendance").insert({
         user_id: user!.id,
         date: today,
@@ -217,6 +224,7 @@ export default function Attendance() {
         punch_in_photo_url: photoUrl,
         punch_in_lat: lat,
         punch_in_lng: lng,
+        user_name: profileData?.name || null,
       });
 
       if (error) throw error;
