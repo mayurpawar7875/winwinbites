@@ -1,8 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
-
 interface Profile {
   id: string;
   user_id: string;
@@ -33,21 +31,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          setTimeout(() => {
-            fetchProfile(session.user.id);
-          }, 0);
-        } else {
-          setProfile(null);
-          setIsLoading(false);
-        }
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      // Only do synchronous state updates here
+      setSession(session);
+      setUser(session?.user ?? null);
+
+      if (session?.user) {
+        // IMPORTANT: mark loading while we fetch the profile, otherwise ProtectedRoute
+        // may redirect to /auth before profile is available.
+        setIsLoading(true);
+
+        setTimeout(() => {
+          fetchProfile(session.user.id);
+        }, 0);
+      } else {
+        setProfile(null);
+        setIsAdmin(false);
+        setIsLoading(false);
       }
-    );
+    });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
@@ -64,21 +68,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const fetchProfile = async (userId: string) => {
+    // Ensure the UI stays in loading state until profile fetch completes.
+    setIsLoading(true);
+
     try {
       // First check if user has any role (to verify they're a valid user)
       const { data: roleData, error: roleError } = await supabase
         .from("user_roles")
         .select("role")
         .eq("user_id", userId);
-      
+
       if (roleError) {
         console.error("Error fetching user roles:", roleError);
       }
-      
+
       // Check if user is admin
-      const hasAdminRole = roleData?.some(r => r.role === "admin") ?? false;
+      const hasAdminRole = roleData?.some((r) => r.role === "admin") ?? false;
       setIsAdmin(hasAdminRole);
-      
+
       // Fetch profile
       const { data, error } = await supabase
         .from("profiles")
@@ -88,28 +95,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (error) {
         console.error("Error fetching profile:", error);
-        setIsLoading(false);
+        setProfile(null);
+        setIsAdmin(false);
         return;
       }
-      
+
       if (!data) {
         console.error("No profile found for user:", userId);
-        setIsLoading(false);
+        setProfile(null);
+        setIsAdmin(false);
         return;
       }
-      
+
       if (!data.is_active) {
-        console.log("User account is inactive, signing out");
         await supabase.auth.signOut();
         setProfile(null);
         setIsAdmin(false);
-        setIsLoading(false);
         return;
       }
-      
+
       setProfile(data);
     } catch (error) {
       console.error("Error in fetchProfile:", error);
+      setProfile(null);
+      setIsAdmin(false);
     } finally {
       setIsLoading(false);
     }
