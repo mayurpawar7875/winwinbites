@@ -200,10 +200,10 @@ export default function AttendanceCalendar() {
         </div>
       </header>
 
-      <main className="container px-3 sm:px-4 py-4 sm:py-6 space-y-4">
+      <main className="container px-3 sm:px-4 py-4 sm:py-6 space-y-4 max-w-4xl mx-auto">
         {/* Month Navigation */}
         <Card className="border-0 shadow-lg">
-          <CardHeader className="pb-2 px-3 sm:px-6 pt-3 sm:pt-6">
+          <CardHeader className="pb-2 px-3 sm:px-4 pt-3 sm:pt-4">
             <div className="flex items-center justify-between">
               <Button
                 variant="ghost"
@@ -227,7 +227,7 @@ export default function AttendanceCalendar() {
               </Button>
             </div>
           </CardHeader>
-          <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
+          <CardContent className="px-2 sm:px-4 pb-3 sm:pb-4">
             {isLoading ? (
               <div className="flex items-center justify-center py-12">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -235,76 +235,79 @@ export default function AttendanceCalendar() {
             ) : (
               <>
                 {/* Legend */}
-                <div className="flex items-center justify-center gap-4 mb-4 text-xs">
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-2 rounded-full bg-success" />
-                    <span>Present</span>
+                <div className="flex items-center justify-center gap-4 sm:gap-6 mb-3 text-xs">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2.5 h-2.5 rounded-full bg-success" />
+                    <span className="text-muted-foreground">Present</span>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-2 rounded-full bg-warning" />
-                    <span>Incomplete</span>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2.5 h-2.5 rounded-full bg-warning" />
+                    <span className="text-muted-foreground">Incomplete</span>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-2 rounded-full bg-muted" />
-                    <span>Absent</span>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2.5 h-2.5 rounded-full bg-muted-foreground/30" />
+                    <span className="text-muted-foreground">Absent</span>
                   </div>
                 </div>
 
-                {/* Day Headers */}
-                <div className="grid grid-cols-7 gap-1 mb-2">
-                  {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(
-                    (day) => (
+                {/* Calendar Container - constrained width on desktop */}
+                <div className="max-w-md mx-auto">
+                  {/* Day Headers */}
+                  <div className="grid grid-cols-7 mb-1">
+                    {["S", "M", "T", "W", "T", "F", "S"].map((day, idx) => (
                       <div
-                        key={day}
-                        className="text-center text-[10px] sm:text-xs font-medium text-muted-foreground py-1"
+                        key={`${day}-${idx}`}
+                        className="text-center text-[10px] sm:text-xs font-semibold text-muted-foreground py-1.5"
                       >
-                        {day}
-                      </div>
-                    )
-                  )}
-                </div>
-
-                {/* Calendar Grid */}
-                <div className="grid grid-cols-7 gap-1">
-                  {/* Padding for start of month */}
-                  {paddingDays.map((_, index) => (
-                    <div key={`pad-${index}`} className="aspect-square" />
-                  ))}
-
-                  {/* Days */}
-                  {daysInMonth.map((day) => {
-                    const dateStr = format(day, "yyyy-MM-dd");
-                    const record = recordsByDate.get(dateStr);
-                    const status = getAttendanceStatus(record);
-                    const isToday = isSameDay(day, new Date());
-                    const isFuture = day > new Date();
-
-                    return (
-                      <button
-                        key={dateStr}
-                        onClick={() => !isFuture && handleDayClick(day)}
-                        disabled={isFuture}
-                        className={`aspect-square rounded-lg flex flex-col items-center justify-center text-xs sm:text-sm transition-all ${
-                          isFuture
-                            ? "opacity-30 cursor-not-allowed"
-                            : "hover:bg-muted cursor-pointer"
-                        } ${isToday ? "ring-2 ring-primary" : ""}`}
-                      >
-                        <span
-                          className={`${isToday ? "font-bold text-primary" : ""}`}
-                        >
-                          {format(day, "d")}
+                        <span className="hidden sm:inline">
+                          {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][idx]}
                         </span>
-                        {!isFuture && (
-                          <div
-                            className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full mt-0.5 ${getStatusColor(
-                              status
-                            )}`}
-                          />
-                        )}
-                      </button>
-                    );
-                  })}
+                        <span className="sm:hidden">{day}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Calendar Grid - tighter spacing */}
+                  <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
+                    {/* Padding for start of month */}
+                    {paddingDays.map((_, index) => (
+                      <div key={`pad-${index}`} className="aspect-square" />
+                    ))}
+
+                    {/* Days */}
+                    {daysInMonth.map((day) => {
+                      const dateStr = format(day, "yyyy-MM-dd");
+                      const record = recordsByDate.get(dateStr);
+                      const status = getAttendanceStatus(record);
+                      const isToday = isSameDay(day, new Date());
+                      const isFuture = day > new Date();
+
+                      return (
+                        <button
+                          key={dateStr}
+                          onClick={() => !isFuture && handleDayClick(day)}
+                          disabled={isFuture}
+                          className={`
+                            aspect-square rounded-md sm:rounded-lg flex flex-col items-center justify-center 
+                            text-xs sm:text-sm font-medium transition-all
+                            ${isFuture ? "opacity-30 cursor-not-allowed" : "hover:bg-muted/80 cursor-pointer active:scale-95"}
+                            ${isToday ? "ring-2 ring-primary ring-offset-1 ring-offset-background" : ""}
+                            ${status === "PRESENT" && !isFuture ? "bg-success/10" : ""}
+                            ${status === "INCOMPLETE" && !isFuture ? "bg-warning/10" : ""}
+                          `}
+                        >
+                          <span className={`${isToday ? "text-primary font-bold" : ""}`}>
+                            {format(day, "d")}
+                          </span>
+                          {!isFuture && (
+                            <div
+                              className={`w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full mt-0.5 ${getStatusColor(status)}`}
+                            />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </>
             )}
