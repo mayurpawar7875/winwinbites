@@ -65,34 +65,51 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchProfile = async (userId: string) => {
     try {
+      // First check if user has any role (to verify they're a valid user)
+      const { data: roleData, error: roleError } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId);
+      
+      if (roleError) {
+        console.error("Error fetching user roles:", roleError);
+      }
+      
+      // Check if user is admin
+      const hasAdminRole = roleData?.some(r => r.role === "admin") ?? false;
+      setIsAdmin(hasAdminRole);
+      
+      // Fetch profile
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
         .eq("user_id", userId)
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching profile:", error);
+        setIsLoading(false);
+        return;
+      }
       
-      if (data && !data.is_active) {
+      if (!data) {
+        console.error("No profile found for user:", userId);
+        setIsLoading(false);
+        return;
+      }
+      
+      if (!data.is_active) {
+        console.log("User account is inactive, signing out");
         await supabase.auth.signOut();
         setProfile(null);
         setIsAdmin(false);
+        setIsLoading(false);
         return;
       }
       
       setProfile(data);
-      
-      // Check if user is admin
-      const { data: roleData } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", userId)
-        .eq("role", "admin")
-        .maybeSingle();
-      
-      setIsAdmin(!!roleData);
     } catch (error) {
-      console.error("Error fetching profile:", error);
+      console.error("Error in fetchProfile:", error);
     } finally {
       setIsLoading(false);
     }
