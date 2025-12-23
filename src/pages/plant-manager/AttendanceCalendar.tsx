@@ -34,7 +34,9 @@ import {
   AlertCircle,
   ExternalLink,
   X,
+  Plus,
 } from "lucide-react";
+import LeaveRequestDialog from "@/components/attendance/LeaveRequestDialog";
 
 interface AttendanceRecord {
   id: string;
@@ -107,6 +109,8 @@ export default function AttendanceCalendar() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [isRequestDialogOpen, setIsRequestDialogOpen] = useState(false);
+  const [requestDate, setRequestDate] = useState<Date>(new Date());
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
@@ -488,9 +492,35 @@ export default function AttendanceCalendar() {
                 <p>No attendance record for this date</p>
               </div>
             )}
+
+            {/* Apply Leave/Overtime Button */}
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => {
+                if (selectedDate) {
+                  setRequestDate(selectedDate);
+                  setIsModalOpen(false);
+                  setIsRequestDialogOpen(true);
+                }
+              }}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Apply Leave / Overtime
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Leave Request Dialog */}
+      <LeaveRequestDialog
+        open={isRequestDialogOpen}
+        onOpenChange={setIsRequestDialogOpen}
+        selectedDate={requestDate}
+        onSuccess={() => {
+          toast.success("Your request has been submitted for approval");
+        }}
+      />
 
       {/* Photo Preview Modal */}
       <Dialog open={!!photoPreview} onOpenChange={() => setPhotoPreview(null)}>

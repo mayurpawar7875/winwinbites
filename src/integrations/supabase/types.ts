@@ -369,6 +369,57 @@ export type Database = {
           },
         ]
       }
+      leave_requests: {
+        Row: {
+          created_at: string
+          id: string
+          leave_type: Database["public"]["Enums"]["leave_type"] | null
+          overtime_hours: number | null
+          reason: string
+          request_date: string
+          request_type: Database["public"]["Enums"]["request_type"]
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["request_status"]
+          updated_at: string
+          user_id: string
+          user_name: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          leave_type?: Database["public"]["Enums"]["leave_type"] | null
+          overtime_hours?: number | null
+          reason: string
+          request_date: string
+          request_type: Database["public"]["Enums"]["request_type"]
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["request_status"]
+          updated_at?: string
+          user_id: string
+          user_name?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          leave_type?: Database["public"]["Enums"]["leave_type"] | null
+          overtime_hours?: number | null
+          reason?: string
+          request_date?: string
+          request_type?: Database["public"]["Enums"]["request_type"]
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["request_status"]
+          updated_at?: string
+          user_id?: string
+          user_name?: string | null
+        }
+        Relationships: []
+      }
       outstanding: {
         Row: {
           amount_settled: number
@@ -707,6 +758,7 @@ export type Database = {
       app_role: "admin" | "plantManager" | "productionManager" | "accountant"
       collection_payment_mode: "CASH" | "UPI" | "ONLINE" | "BANK"
       invoice_payment_status: "UNPAID" | "PARTIAL" | "PAID"
+      leave_type: "FULL_DAY" | "HALF_DAY"
       party_type: "VENDOR" | "CUSTOMER"
       payment_mode: "CASH" | "ONLINE"
       payment_status: "PAID" | "CREDIT"
@@ -718,6 +770,8 @@ export type Database = {
         | "POWER"
         | "QUALITY"
         | "OTHER"
+      request_status: "PENDING" | "APPROVED" | "REJECTED"
+      request_type: "LEAVE" | "OVERTIME"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -848,6 +902,7 @@ export const Constants = {
       app_role: ["admin", "plantManager", "productionManager", "accountant"],
       collection_payment_mode: ["CASH", "UPI", "ONLINE", "BANK"],
       invoice_payment_status: ["UNPAID", "PARTIAL", "PAID"],
+      leave_type: ["FULL_DAY", "HALF_DAY"],
       party_type: ["VENDOR", "CUSTOMER"],
       payment_mode: ["CASH", "ONLINE"],
       payment_status: ["PAID", "CREDIT"],
@@ -860,6 +915,8 @@ export const Constants = {
         "QUALITY",
         "OTHER",
       ],
+      request_status: ["PENDING", "APPROVED", "REJECTED"],
+      request_type: ["LEAVE", "OVERTIME"],
     },
   },
 } as const
