@@ -5,17 +5,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2, Eye, EyeOff } from "lucide-react";
+import { Loader2, Eye, EyeOff, Mail, Lock, User, Briefcase, Sparkles } from "lucide-react";
 import { z } from "zod";
 import logo from "@/assets/win-win-bites-logo.jpg";
 
 const ROLES = [
-  { value: "plantManager", label: "Plant Manager" },
-  { value: "productionManager", label: "Production Manager" },
-  { value: "accountant", label: "Accountant" },
+  { value: "plantManager", label: "Plant Manager", icon: "🏭" },
+  { value: "productionManager", label: "Production Manager", icon: "⚙️" },
+  { value: "accountant", label: "Accountant", icon: "📊" },
 ] as const;
 
 const authSchema = z.object({
@@ -98,7 +98,6 @@ export default function Auth() {
         }
 
         toast.success("Account created successfully! Welcome aboard!");
-        // Navigation will be handled by useEffect watching user state
       } else {
         const { error } = await signIn(email, password);
         
@@ -115,7 +114,6 @@ export default function Auth() {
         }
 
         toast.success("Welcome back!");
-        // Navigation will be handled by useEffect watching user state
       }
     } catch (error) {
       toast.error("An unexpected error occurred");
@@ -133,57 +131,95 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4 py-6 sm:py-4">
-      <div className="w-full max-w-md animate-slide-up">
-        <div className="flex flex-col items-center mb-4 sm:mb-8">
-          <img 
-            src={logo} 
-            alt="Win Win Bites Logo" 
-            className="h-14 sm:h-20 w-auto mb-2 sm:mb-4"
-          />
-          <h1 className="text-xl sm:text-2xl font-bold text-foreground">Plant Manager</h1>
-          <p className="text-muted-foreground text-xs sm:text-sm">Daily Reporting System</p>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/10 p-4">
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/10 rounded-full blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-secondary/10 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl" />
+      </div>
+
+      <div className="w-full max-w-md relative z-10">
+        {/* Logo and branding */}
+        <div className="flex flex-col items-center mb-6 sm:mb-8">
+          <div className="relative mb-4">
+            <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl scale-150" />
+            <div className="relative bg-card p-3 rounded-2xl shadow-xl border border-border/50">
+              <img 
+                src={logo} 
+                alt="Win Win Bites Logo" 
+                className="h-16 sm:h-20 w-auto rounded-xl"
+              />
+            </div>
+          </div>
+          <div className="text-center space-y-1">
+            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+              Plant Manager
+            </h1>
+            <p className="text-muted-foreground text-sm flex items-center justify-center gap-1.5">
+              <Sparkles className="h-3.5 w-3.5" />
+              Daily Reporting System
+            </p>
+          </div>
         </div>
 
-        <Card className="border-0 shadow-xl">
-          <CardHeader className="space-y-1 pb-2 sm:pb-4 pt-4 sm:pt-6">
-            <CardTitle className="text-lg sm:text-xl text-center">
-              {isSignUp ? "Create Account" : "Welcome Back"}
-            </CardTitle>
-            <CardDescription className="text-center text-xs sm:text-sm">
-              {isSignUp 
-                ? "Enter your details to create your account" 
-                : "Enter your credentials to access your dashboard"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pb-4 sm:pb-6">
-            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+        {/* Auth Card */}
+        <Card className="border border-border/50 shadow-2xl backdrop-blur-sm bg-card/95 overflow-hidden">
+          {/* Card header with gradient accent */}
+          <div className="h-1.5 bg-gradient-to-r from-primary via-primary/80 to-primary/60" />
+          
+          <CardContent className="p-6 sm:p-8">
+            {/* Title section */}
+            <div className="text-center mb-6">
+              <h2 className="text-xl sm:text-2xl font-semibold text-foreground">
+                {isSignUp ? "Create Account" : "Welcome Back"}
+              </h2>
+              <p className="text-muted-foreground text-sm mt-1.5">
+                {isSignUp 
+                  ? "Join us to manage your plant operations" 
+                  : "Sign in to access your dashboard"}
+              </p>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
               {isSignUp && (
                 <>
-                  <div className="space-y-1.5 sm:space-y-2">
-                    <Label htmlFor="name" className="text-sm">Full Name</Label>
+                  {/* Name field */}
+                  <div className="space-y-2">
+                    <Label htmlFor="name" className="text-sm font-medium flex items-center gap-2">
+                      <User className="h-3.5 w-3.5 text-muted-foreground" />
+                      Full Name
+                    </Label>
                     <Input
                       id="name"
                       type="text"
-                      placeholder="John Doe"
+                      placeholder="Enter your full name"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       required={isSignUp}
                       autoComplete="name"
-                      className="h-10 sm:h-12 text-sm sm:text-base"
+                      className="h-11 sm:h-12 text-sm sm:text-base bg-muted/30 border-border/50 focus:bg-background transition-colors"
                       maxLength={100}
                     />
                   </div>
-                  <div className="space-y-1.5 sm:space-y-2">
-                    <Label htmlFor="role" className="text-sm">Role</Label>
+
+                  {/* Role field */}
+                  <div className="space-y-2">
+                    <Label htmlFor="role" className="text-sm font-medium flex items-center gap-2">
+                      <Briefcase className="h-3.5 w-3.5 text-muted-foreground" />
+                      Role
+                    </Label>
                     <Select value={role} onValueChange={setRole}>
-                      <SelectTrigger className="h-10 sm:h-12 text-sm sm:text-base">
+                      <SelectTrigger className="h-11 sm:h-12 text-sm sm:text-base bg-muted/30 border-border/50 focus:bg-background transition-colors">
                         <SelectValue placeholder="Select your role" />
                       </SelectTrigger>
                       <SelectContent>
                         {ROLES.map((r) => (
-                          <SelectItem key={r.value} value={r.value}>
-                            {r.label}
+                          <SelectItem key={r.value} value={r.value} className="py-3">
+                            <span className="flex items-center gap-2">
+                              <span>{r.icon}</span>
+                              <span>{r.label}</span>
+                            </span>
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -192,40 +228,48 @@ export default function Auth() {
                 </>
               )}
               
-              <div className="space-y-1.5 sm:space-y-2">
-                <Label htmlFor="email" className="text-sm">Email</Label>
+              {/* Email field */}
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm font-medium flex items-center gap-2">
+                  <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+                  Email Address
+                </Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="manager@plant.com"
+                  placeholder="you@company.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   autoComplete="email"
-                  className="h-10 sm:h-12 text-sm sm:text-base"
+                  className="h-11 sm:h-12 text-sm sm:text-base bg-muted/30 border-border/50 focus:bg-background transition-colors"
                   maxLength={255}
                 />
               </div>
               
-              <div className="space-y-1.5 sm:space-y-2">
-                <Label htmlFor="password" className="text-sm">Password</Label>
+              {/* Password field */}
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-sm font-medium flex items-center gap-2">
+                  <Lock className="h-3.5 w-3.5 text-muted-foreground" />
+                  Password
+                </Label>
                 <div className="relative">
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
+                    placeholder="Enter your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     autoComplete={isSignUp ? "new-password" : "current-password"}
-                    className="h-10 sm:h-12 text-sm sm:text-base pr-12"
+                    className="h-11 sm:h-12 text-sm sm:text-base pr-12 bg-muted/30 border-border/50 focus:bg-background transition-colors"
                     maxLength={72}
                   />
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8"
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 hover:bg-muted"
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
@@ -237,9 +281,10 @@ export default function Auth() {
                 </div>
               </div>
 
+              {/* Submit button */}
               <Button
                 type="submit"
-                className="w-full h-10 sm:h-12 text-sm sm:text-base font-semibold gradient-primary border-0"
+                className="w-full h-11 sm:h-12 text-sm sm:text-base font-semibold mt-2 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-primary/40"
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -248,29 +293,43 @@ export default function Auth() {
                     {isSignUp ? "Creating account..." : "Signing in..."}
                   </>
                 ) : (
-                  isSignUp ? "Create Account" : "Sign In"
+                  <span className="flex items-center gap-2">
+                    {isSignUp ? "Create Account" : "Sign In"}
+                    <span className="text-lg">{isSignUp ? "🚀" : "→"}</span>
+                  </span>
                 )}
               </Button>
             </form>
 
-            <div className="mt-4 text-center">
-              <button
-                type="button"
-                onClick={toggleMode}
-                className="text-sm text-primary hover:underline"
-              >
-                {isSignUp 
-                  ? "Already have an account? Sign in" 
-                  : "Don't have an account? Sign up"}
-              </button>
+            {/* Divider */}
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-border/50" />
+              </div>
+              <div className="relative flex justify-center">
+                <span className="bg-card px-3 text-xs text-muted-foreground uppercase tracking-wider">
+                  {isSignUp ? "Already a member?" : "New here?"}
+                </span>
+              </div>
             </div>
+
+            {/* Toggle mode button */}
+            <Button
+              type="button"
+              variant="outline"
+              onClick={toggleMode}
+              className="w-full h-10 text-sm font-medium border-border/50 hover:bg-muted/50 transition-colors"
+            >
+              {isSignUp ? "Sign in to your account" : "Create a new account"}
+            </Button>
           </CardContent>
         </Card>
 
-        <p className="text-center text-xs text-muted-foreground mt-4 sm:mt-6">
+        {/* Footer text */}
+        <p className="text-center text-xs text-muted-foreground mt-6 px-4">
           {isSignUp 
-            ? "By signing up, you agree to our terms of service" 
-            : "Contact your administrator if you need access"}
+            ? "By creating an account, you agree to our terms of service and privacy policy" 
+            : "Need help? Contact your administrator for access"}
         </p>
       </div>
     </div>
