@@ -40,6 +40,7 @@ import {
   UserCheck,
   UserX,
   Trash2,
+  Settings2,
 } from "lucide-react";
 
 interface UserProfile {
@@ -72,6 +73,9 @@ export default function AdminUsers() {
   const [isCreating, setIsCreating] = useState(false);
   const [deleteUserId, setDeleteUserId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [roleChangeUser, setRoleChangeUser] = useState<{ userId: string; name: string; currentRole: string } | null>(null);
+  const [newRole, setNewRole] = useState("");
+  const [isChangingRole, setIsChangingRole] = useState(false);
 
   // New user form
   const [newUserName, setNewUserName] = useState("");
@@ -206,6 +210,38 @@ export default function AdminUsers() {
       toast.error(error.message || "Failed to delete user");
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  const handleChangeRole = async () => {
+    if (!roleChangeUser || !newRole) return;
+
+    setIsChangingRole(true);
+    try {
+      // First, delete existing roles for this user (except keeping admin if changing to admin)
+      const { error: deleteError } = await supabase
+        .from("user_roles")
+        .delete()
+        .eq("user_id", roleChangeUser.userId);
+
+      if (deleteError) throw deleteError;
+
+      // Insert new role
+      const { error: insertError } = await supabase
+        .from("user_roles")
+        .insert({ user_id: roleChangeUser.userId, role: newRole as "admin" | "plantManager" | "productionManager" | "accountant" });
+
+      if (insertError) throw insertError;
+
+      toast.success("Role updated successfully");
+      setRoleChangeUser(null);
+      setNewRole("");
+      fetchUsers();
+    } catch (error: any) {
+      console.error("Error changing role:", error);
+      toast.error(error.message || "Failed to change role");
+    } finally {
+      setIsChangingRole(false);
     }
   };
 
@@ -351,6 +387,21 @@ export default function AdminUsers() {
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8"
+                      onClick={() => {
+                        setRoleChangeUser({
+                          userId: user.user_id,
+                          name: user.name,
+                          currentRole: getUserRole(user.user_id),
+                        });
+                        setNewRole(getUserRole(user.user_id));
+                      }}
+                    >
+                      <Settings2 className="h-4 w-4 text-muted-foreground" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
                       onClick={() => handleToggleActive(user)}
                     >
                       {user.is_active ? (
@@ -403,6 +454,52 @@ export default function AdminUsers() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Change Role Dialog */}
+      <Dialog open={!!roleChangeUser} onOpenChange={() => setRoleChangeUser(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Change Role for {roleChangeUser?.name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-4">
+            <div className="space-y-2">
+              <Label>Current Role</Label>
+              <Badge variant={getRoleBadgeVariant(roleChangeUser?.currentRole || "")}>
+                {ROLES.find((r) => r.value === roleChangeUser?.currentRole)?.label || roleChangeUser?.currentRole}
+              </Badge>
+            </div>
+            <div className="space-y-2">
+              <Label>New Role</Label>
+              <Select value={newRole} onValueChange={setNewRole}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select new role" />
+                </SelectTrigger>
+                <SelectContent>
+                  {ROLES.map((role) => (
+                    <SelectItem key={role.value} value={role.value}>
+                      {role.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <Button
+              className="w-full"
+              onClick={handleChangeRole}
+              disabled={isChangingRole || newRole === roleChangeUser?.currentRole}
+            >
+              {isChangingRole ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Updating...
+                </>
+              ) : (
+                "Update Role"
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
