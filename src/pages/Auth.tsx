@@ -34,7 +34,7 @@ export default function Auth() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   
-  const { signIn, signUp, user, isLoading: authLoading } = useAuth();
+  const { signIn, signUp, user, isLoading: authLoading, isAdmin } = useAuth();
   const navigate = useNavigate();
 
   // Clear stale auth tokens on mount to prevent refresh token errors
@@ -54,9 +54,14 @@ export default function Auth() {
 
   useEffect(() => {
     if (!authLoading && user) {
-      navigate("/plant-manager/dashboard", { replace: true });
+      // Redirect admin to admin dashboard, others to plant manager dashboard
+      if (isAdmin) {
+        navigate("/plant-manager/admin", { replace: true });
+      } else {
+        navigate("/plant-manager/dashboard", { replace: true });
+      }
     }
-  }, [user, authLoading, navigate]);
+  }, [user, authLoading, isAdmin, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
