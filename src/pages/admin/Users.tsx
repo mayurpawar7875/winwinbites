@@ -113,8 +113,10 @@ export default function AdminUsers() {
   };
 
   const getUserRole = (userId: string) => {
-    const role = userRoles.find((r) => r.user_id === userId);
-    return role?.role || "Unknown";
+    const roles = userRoles.filter((r) => r.user_id === userId);
+    // Prioritize admin role if user has multiple roles
+    if (roles.some(r => r.role === "admin")) return "admin";
+    return roles[0]?.role || "Unknown";
   };
 
   const getRoleBadgeVariant = (role: string) => {
