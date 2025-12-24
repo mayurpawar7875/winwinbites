@@ -218,20 +218,15 @@ export default function AdminUsers() {
 
     setIsChangingRole(true);
     try {
-      // First, delete existing roles for this user (except keeping admin if changing to admin)
-      const { error: deleteError } = await supabase
-        .from("user_roles")
-        .delete()
-        .eq("user_id", roleChangeUser.userId);
+      const { data, error } = await supabase.functions.invoke("update-user-role", {
+        body: {
+          targetUserId: roleChangeUser.userId,
+          newRole: newRole,
+        },
+      });
 
-      if (deleteError) throw deleteError;
-
-      // Insert new role
-      const { error: insertError } = await supabase
-        .from("user_roles")
-        .insert({ user_id: roleChangeUser.userId, role: newRole as "admin" | "plantManager" | "productionManager" | "accountant" });
-
-      if (insertError) throw insertError;
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
 
       toast.success("Role updated successfully");
       setRoleChangeUser(null);
