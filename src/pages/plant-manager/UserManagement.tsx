@@ -188,29 +188,21 @@ export default function UserManagement() {
   const handleRoleChange = async (userId: string, newRole: AppRole) => {
     setUpdatingRoleUserId(userId);
     try {
-      // Check if user already has a role
-      const existingRole = userRoles.find((r) => r.user_id === userId);
-      
-      if (existingRole) {
-        const { error } = await supabase
-          .from("user_roles")
-          .update({ role: newRole })
-          .eq("user_id", userId);
+      const { data, error } = await supabase.functions.invoke("update-user-role", {
+        body: {
+          targetUserId: userId,
+          newRole: newRole,
+        },
+      });
 
-        if (error) throw error;
-      } else {
-        const { error } = await supabase
-          .from("user_roles")
-          .insert({ user_id: userId, role: newRole });
-
-        if (error) throw error;
-      }
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
       
       toast.success("Role updated successfully");
       fetchUserRoles();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating role:", error);
-      toast.error("Failed to update role");
+      toast.error(error.message || "Failed to update role");
     } finally {
       setUpdatingRoleUserId(null);
     }
