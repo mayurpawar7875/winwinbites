@@ -169,6 +169,58 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
+      {/* Active Employees - Real-time Section (TOP) */}
+      <Card className="border-0 shadow-lg border-l-4 border-l-green-500">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                <UserCheck className="h-5 w-5 text-green-500" />
+                Active Employees
+                <Badge variant="outline" className="ml-2 bg-green-500/10 text-green-600 border-green-500/30">
+                  {activeEmployees.length} Working
+                </Badge>
+              </CardTitle>
+              <CardDescription className="text-xs sm:text-sm">Employees currently on duty (real-time)</CardDescription>
+            </div>
+            <Activity className="h-4 w-4 text-green-500 animate-pulse" />
+          </div>
+        </CardHeader>
+        <CardContent>
+          {activeEmployees.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground text-sm">
+              <Clock className="h-10 w-10 mx-auto mb-2 opacity-40" />
+              No employees currently working
+            </div>
+          ) : (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {activeEmployees.map((employee) => (
+                <div
+                  key={employee.id}
+                  className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-green-500/5 to-transparent border border-green-500/20 hover:border-green-500/40 transition-colors"
+                >
+                  <div className="h-10 w-10 rounded-full bg-green-500/20 flex items-center justify-center shrink-0">
+                    <span className="text-sm font-semibold text-green-600">
+                      {employee.user_name?.charAt(0)?.toUpperCase() || "?"}
+                    </span>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-sm truncate">{employee.user_name || "Unknown"}</p>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Timer className="h-3 w-3" />
+                      <span>In: {employee.punch_in_time ? format(new Date(employee.punch_in_time), "hh:mm a") : "-"}</span>
+                    </div>
+                  </div>
+                  <Badge variant="secondary" className="bg-green-500/10 text-green-600 text-xs shrink-0">
+                    {employee.punch_in_time ? getWorkingDuration(employee.punch_in_time) : "-"}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <Card className="border-0 shadow-md hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/admin/users")}>
@@ -227,58 +279,6 @@ export default function AdminDashboardPage() {
           </CardContent>
         </Card>
       </div>
-
-      {/* Active Employees - Real-time Section */}
-      <Card className="border-0 shadow-lg border-l-4 border-l-green-500">
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-base sm:text-lg flex items-center gap-2">
-                <UserCheck className="h-5 w-5 text-green-500" />
-                Active Employees
-                <Badge variant="outline" className="ml-2 bg-green-500/10 text-green-600 border-green-500/30">
-                  {activeEmployees.length} Working
-                </Badge>
-              </CardTitle>
-              <CardDescription className="text-xs sm:text-sm">Employees currently on duty (real-time)</CardDescription>
-            </div>
-            <Activity className="h-4 w-4 text-green-500 animate-pulse" />
-          </div>
-        </CardHeader>
-        <CardContent>
-          {activeEmployees.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground text-sm">
-              <Clock className="h-10 w-10 mx-auto mb-2 opacity-40" />
-              No employees currently working
-            </div>
-          ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {activeEmployees.map((employee) => (
-                <div
-                  key={employee.id}
-                  className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-green-500/5 to-transparent border border-green-500/20 hover:border-green-500/40 transition-colors"
-                >
-                  <div className="h-10 w-10 rounded-full bg-green-500/20 flex items-center justify-center shrink-0">
-                    <span className="text-sm font-semibold text-green-600">
-                      {employee.user_name?.charAt(0)?.toUpperCase() || "?"}
-                    </span>
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium text-sm truncate">{employee.user_name || "Unknown"}</p>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Timer className="h-3 w-3" />
-                      <span>In: {employee.punch_in_time ? format(new Date(employee.punch_in_time), "hh:mm a") : "-"}</span>
-                    </div>
-                  </div>
-                  <Badge variant="secondary" className="bg-green-500/10 text-green-600 text-xs shrink-0">
-                    {employee.punch_in_time ? getWorkingDuration(employee.punch_in_time) : "-"}
-                  </Badge>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
 
       {/* Quick Actions & Recent Requests */}
       <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
