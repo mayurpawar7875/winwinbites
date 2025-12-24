@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      advances: {
+        Row: {
+          advance_date: string
+          amount: number
+          created_at: string
+          created_by: string
+          id: string
+          reason: string | null
+          remaining_amount: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          advance_date: string
+          amount: number
+          created_at?: string
+          created_by: string
+          id?: string
+          reason?: string | null
+          remaining_amount: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          advance_date?: string
+          amount?: number
+          created_at?: string
+          created_by?: string
+          id?: string
+          reason?: string | null
+          remaining_amount?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       attendance: {
         Row: {
           created_at: string | null
@@ -615,8 +651,40 @@ export type Database = {
         }
         Relationships: []
       }
+      salary_settings: {
+        Row: {
+          cap_at_monthly_salary: boolean
+          created_at: string
+          default_monthly_salary: number
+          id: string
+          min_days_for_weekly_off_paid: number
+          updated_at: string
+          weekly_off_day: string
+        }
+        Insert: {
+          cap_at_monthly_salary?: boolean
+          created_at?: string
+          default_monthly_salary?: number
+          id?: string
+          min_days_for_weekly_off_paid?: number
+          updated_at?: string
+          weekly_off_day?: string
+        }
+        Update: {
+          cap_at_monthly_salary?: boolean
+          created_at?: string
+          default_monthly_salary?: number
+          id?: string
+          min_days_for_weekly_off_paid?: number
+          updated_at?: string
+          weekly_off_day?: string
+        }
+        Relationships: []
+      }
       salary_slips: {
         Row: {
+          advance_balance_after: number | null
+          advance_deduction: number | null
           basic_salary: number
           days_absent: number
           days_half: number
@@ -624,19 +692,28 @@ export type Database = {
           deductions: number
           generated_at: string
           generated_by: string
+          gross_salary: number | null
           id: string
           month: number
+          monthly_salary: number | null
           net_salary: number
           notes: string | null
+          other_deductions: number | null
           overtime_hours: number
           overtime_pay: number
+          paid_days: number | null
+          per_day_salary: number | null
           regular_hours: number
+          total_days_in_month: number | null
           total_hours_worked: number
           total_working_days: number
           user_id: string
+          weekly_off_days: number | null
           year: number
         }
         Insert: {
+          advance_balance_after?: number | null
+          advance_deduction?: number | null
           basic_salary?: number
           days_absent?: number
           days_half?: number
@@ -644,19 +721,28 @@ export type Database = {
           deductions?: number
           generated_at?: string
           generated_by: string
+          gross_salary?: number | null
           id?: string
           month: number
+          monthly_salary?: number | null
           net_salary?: number
           notes?: string | null
+          other_deductions?: number | null
           overtime_hours?: number
           overtime_pay?: number
+          paid_days?: number | null
+          per_day_salary?: number | null
           regular_hours?: number
+          total_days_in_month?: number | null
           total_hours_worked?: number
           total_working_days?: number
           user_id: string
+          weekly_off_days?: number | null
           year: number
         }
         Update: {
+          advance_balance_after?: number | null
+          advance_deduction?: number | null
           basic_salary?: number
           days_absent?: number
           days_half?: number
@@ -664,16 +750,23 @@ export type Database = {
           deductions?: number
           generated_at?: string
           generated_by?: string
+          gross_salary?: number | null
           id?: string
           month?: number
+          monthly_salary?: number | null
           net_salary?: number
           notes?: string | null
+          other_deductions?: number | null
           overtime_hours?: number
           overtime_pay?: number
+          paid_days?: number | null
+          per_day_salary?: number | null
           regular_hours?: number
+          total_days_in_month?: number | null
           total_hours_worked?: number
           total_working_days?: number
           user_id?: string
+          weekly_off_days?: number | null
           year?: number
         }
         Relationships: []
