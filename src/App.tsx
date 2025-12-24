@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import AdminLayout from "@/components/layouts/AdminLayout";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/plant-manager/Dashboard";
@@ -20,9 +21,12 @@ import Problems from "./pages/plant-manager/Problems";
 import History from "./pages/plant-manager/History";
 import UserManagement from "./pages/plant-manager/UserManagement";
 import AdminDashboard from "./pages/plant-manager/AdminDashboard";
+import Salary from "./pages/plant-manager/Salary";
+import AdminDashboardPage from "./pages/admin/Dashboard";
 import AdminAttendance from "./pages/admin/AdminAttendance";
 import LeaveRequests from "./pages/admin/LeaveRequests";
-import Salary from "./pages/plant-manager/Salary";
+import AdminUsers from "./pages/admin/Users";
+import AdminSalary from "./pages/admin/Salary";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,6 +41,8 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            
+            {/* Plant Manager Routes */}
             <Route element={<ProtectedRoute />}>
               <Route path="/plant-manager/dashboard" element={<Dashboard />} />
               <Route path="/plant-manager/attendance" element={<Attendance />} />
@@ -52,9 +58,19 @@ const App = () => (
               <Route path="/plant-manager/users" element={<UserManagement />} />
               <Route path="/plant-manager/admin" element={<AdminDashboard />} />
               <Route path="/plant-manager/salary" element={<Salary />} />
-              <Route path="/admin/attendance" element={<AdminAttendance />} />
-              <Route path="/admin/leave-requests" element={<LeaveRequests />} />
             </Route>
+            
+            {/* Admin Routes with Admin Layout */}
+            <Route element={<ProtectedRoute />}>
+              <Route element={<AdminLayout />}>
+                <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+                <Route path="/admin/attendance" element={<AdminAttendance />} />
+                <Route path="/admin/leave-requests" element={<LeaveRequests />} />
+                <Route path="/admin/users" element={<AdminUsers />} />
+                <Route path="/admin/salary" element={<AdminSalary />} />
+              </Route>
+            </Route>
+            
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

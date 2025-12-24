@@ -56,7 +56,7 @@ export default function Auth() {
     if (!authLoading && user) {
       // Redirect admin to admin dashboard, others to plant manager dashboard
       if (isAdmin) {
-        navigate("/plant-manager/admin", { replace: true });
+        navigate("/admin/dashboard", { replace: true });
       } else {
         navigate("/plant-manager/dashboard", { replace: true });
       }

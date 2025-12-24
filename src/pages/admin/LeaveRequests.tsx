@@ -155,48 +155,28 @@ export default function LeaveRequests() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-card border-b border-border shadow-sm">
-        <div className="container flex items-center h-12 sm:h-14 px-3 sm:px-4 gap-3 sm:gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 sm:h-10 sm:w-10"
-            onClick={() => navigate("/admin/attendance")}
-          >
-            <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
-          </Button>
-          <div className="flex items-center gap-2">
-            <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-            <div>
-              <h1 className="font-bold text-sm sm:text-base text-foreground">
-                Leave & Overtime Requests
-              </h1>
-              <p className="text-[10px] sm:text-xs text-muted-foreground">
-                Manage employee requests
-              </p>
-            </div>
-          </div>
-        </div>
-      </header>
+    <div className="p-4 sm:p-6 space-y-4 max-w-4xl mx-auto">
+      {/* Page Header */}
+      <div>
+        <h1 className="text-xl sm:text-2xl font-bold text-foreground">Leave & Overtime Requests</h1>
+        <p className="text-sm text-muted-foreground">Manage employee requests</p>
+      </div>
 
-      <main className="container px-3 sm:px-4 py-4 sm:py-6 space-y-4 max-w-4xl mx-auto">
-        {/* Filter */}
-        <div className="flex items-center gap-2">
-          <Filter className="h-4 w-4 text-muted-foreground" />
-          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
-            <SelectTrigger className="w-32">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">All</SelectItem>
-              <SelectItem value="PENDING">Pending</SelectItem>
-              <SelectItem value="APPROVED">Approved</SelectItem>
-              <SelectItem value="REJECTED">Rejected</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+      {/* Filter */}
+      <div className="flex items-center gap-2">
+        <Filter className="h-4 w-4 text-muted-foreground" />
+        <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
+          <SelectTrigger className="w-32">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ALL">All</SelectItem>
+            <SelectItem value="PENDING">Pending</SelectItem>
+            <SelectItem value="APPROVED">Approved</SelectItem>
+            <SelectItem value="REJECTED">Rejected</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
         {/* Requests List */}
         {isLoading ? (
@@ -281,7 +261,7 @@ export default function LeaveRequests() {
             ))}
           </div>
         )}
-      </main>
+      
 
       {/* Review Dialog */}
       <Dialog open={!!selectedRequest && !!actionType} onOpenChange={() => {

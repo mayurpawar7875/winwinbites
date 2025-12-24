@@ -319,52 +319,16 @@ export default function AdminAttendance() {
   if (!isAdmin) return null;
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-card border-b border-border shadow-sm">
-        <div className="container flex items-center h-12 sm:h-14 px-3 sm:px-4 gap-3 sm:gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 sm:h-10 sm:w-10"
-            onClick={() => navigate("/plant-manager/dashboard")}
-          >
-            <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
-          </Button>
-          <div className="flex items-center gap-2">
-            <Users className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-            <div>
-              <h1 className="font-bold text-sm sm:text-base text-foreground">
-                Attendance Management
-              </h1>
-              <p className="text-[10px] sm:text-xs text-muted-foreground">
-                View all employee attendance
-              </p>
-            </div>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            className="hidden sm:flex items-center gap-2"
-            onClick={() => navigate("/admin/leave-requests")}
-          >
-            <FileText className="h-4 w-4" />
-            Leave Requests
-          </Button>
+    <div className="p-4 sm:p-6 space-y-4">
+      {/* Page Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground">Attendance Management</h1>
+          <p className="text-sm text-muted-foreground">View all employee attendance</p>
         </div>
-      </header>
+      </div>
 
-      <main className="container px-3 sm:px-4 py-4 sm:py-6 space-y-4">
-        {/* Mobile Leave Requests Button */}
-        <Button
-          variant="outline"
-          className="w-full sm:hidden flex items-center justify-center gap-2"
-          onClick={() => navigate("/admin/leave-requests")}
-        >
-          <FileText className="h-4 w-4" />
-          Manage Leave & Overtime Requests
-        </Button>
-        <Tabs defaultValue="list" className="space-y-4">
+      <Tabs defaultValue="list" className="space-y-4">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="list" className="flex items-center gap-2">
               <List className="h-4 w-4" />
@@ -776,7 +740,6 @@ export default function AdminAttendance() {
             </div>
           </TabsContent>
         </Tabs>
-      </main>
 
       {/* Detail Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
