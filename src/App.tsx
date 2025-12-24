@@ -20,13 +20,18 @@ import Outstanding from "./pages/plant-manager/Outstanding";
 import Problems from "./pages/plant-manager/Problems";
 import History from "./pages/plant-manager/History";
 import UserManagement from "./pages/plant-manager/UserManagement";
-
 import Salary from "./pages/plant-manager/Salary";
+import MySalarySlips from "./pages/plant-manager/MySalarySlips";
+import MyAdvances from "./pages/plant-manager/MyAdvances";
+
 import AdminDashboardPage from "./pages/admin/Dashboard";
 import AdminAttendance from "./pages/admin/AdminAttendance";
 import LeaveRequests from "./pages/admin/LeaveRequests";
 import AdminUsers from "./pages/admin/Users";
 import AdminSalary from "./pages/admin/Salary";
+import SalarySettings from "./pages/admin/SalarySettings";
+import Advances from "./pages/admin/Advances";
+import GenerateSalarySlip from "./pages/admin/GenerateSalarySlip";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -57,6 +62,8 @@ const App = () => (
               <Route path="/plant-manager/history" element={<History />} />
               <Route path="/plant-manager/users" element={<UserManagement />} />
               <Route path="/plant-manager/salary" element={<Salary />} />
+              <Route path="/plant-manager/my-salary-slips" element={<MySalarySlips />} />
+              <Route path="/plant-manager/my-advances" element={<MyAdvances />} />
             </Route>
             
             {/* Admin Routes with Admin Layout */}
@@ -66,7 +73,9 @@ const App = () => (
                 <Route path="/admin/attendance" element={<AdminAttendance />} />
                 <Route path="/admin/leave-requests" element={<LeaveRequests />} />
                 <Route path="/admin/users" element={<AdminUsers />} />
-                <Route path="/admin/salary" element={<AdminSalary />} />
+                <Route path="/admin/salary" element={<GenerateSalarySlip />} />
+                <Route path="/admin/salary/settings" element={<SalarySettings />} />
+                <Route path="/admin/salary/advances" element={<Advances />} />
               </Route>
             </Route>
             
