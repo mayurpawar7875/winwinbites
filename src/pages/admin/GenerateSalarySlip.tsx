@@ -20,6 +20,8 @@ import {
   User,
   Save,
   Printer,
+  Edit2,
+  RotateCcw,
 } from "lucide-react";
 
 interface UserProfile {
@@ -54,6 +56,10 @@ interface SalaryCalculation {
   otherDeductions: number;
   netSalary: number;
   advanceBalanceAfter: number;
+  // Editable overrides
+  manualDaysPresent?: number;
+  manualGrossSalary?: number;
+  manualAdvanceDeduction?: number;
 }
 
 const MONTHS = [
@@ -84,6 +90,12 @@ export default function GenerateSalarySlipPage() {
   const [isCalculating, setIsCalculating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [existingSlip, setExistingSlip] = useState<any>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  
+  // Editable override values
+  const [editDaysPresent, setEditDaysPresent] = useState<number | null>(null);
+  const [editGrossSalary, setEditGrossSalary] = useState<number | null>(null);
+  const [editAdvanceDeduction, setEditAdvanceDeduction] = useState<number | null>(null);
 
   useEffect(() => {
     fetchInitialData();
@@ -227,6 +239,12 @@ export default function GenerateSalarySlipPage() {
         advanceBalanceAfter,
       });
       
+      // Reset edit values when calculation changes
+      setEditDaysPresent(null);
+      setEditGrossSalary(null);
+      setEditAdvanceDeduction(null);
+      setIsEditing(false);
+      
     } catch (error) {
       console.error("Error calculating salary:", error);
       toast.error("Failed to calculate salary");
@@ -241,35 +259,61 @@ export default function GenerateSalarySlipPage() {
     }
   }, [selectedUserId, selectedMonth, selectedYear, settings, calculateSalary]);
 
+  // Get effective values (edited or calculated)
+  const getEffectiveValues = () => {
+    if (!calculation) return null;
+    
+    const effectiveDaysPresent = editDaysPresent ?? calculation.daysPresent;
+    const effectiveGrossSalary = editGrossSalary ?? calculation.grossSalary;
+    const effectiveAdvanceDeduction = editAdvanceDeduction ?? calculation.advanceDeduction;
+    
+    // Recalculate net salary based on edits
+    let netSalary = effectiveGrossSalary - effectiveAdvanceDeduction - otherDeductions;
+    if (netSalary < 0) netSalary = 0;
+    
+    const advanceBalanceAfter = calculation.advanceBalance - effectiveAdvanceDeduction;
+    
+    return {
+      ...calculation,
+      daysPresent: effectiveDaysPresent,
+      grossSalary: effectiveGrossSalary,
+      advanceDeduction: effectiveAdvanceDeduction,
+      netSalary,
+      advanceBalanceAfter,
+    };
+  };
+
+  const effectiveCalc = getEffectiveValues();
+
   const saveSalarySlip = async () => {
-    if (!calculation || !user) return;
+    if (!effectiveCalc || !user) return;
     
     setIsSaving(true);
     
     try {
-      // Upsert salary slip
+      // Upsert salary slip using effective (possibly edited) values
       const { error: slipError } = await supabase
         .from("salary_slips")
         .upsert({
           user_id: selectedUserId,
           month: selectedMonth,
           year: selectedYear,
-          total_days_in_month: calculation.totalDaysInMonth,
-          days_present: calculation.daysPresent,
-          weekly_off_days: calculation.weeklyOffDays,
-          paid_days: calculation.paidDays,
-          monthly_salary: calculation.monthlySalary,
-          per_day_salary: calculation.perDaySalary,
-          gross_salary: calculation.grossSalary,
-          advance_deduction: calculation.advanceDeduction,
-          other_deductions: calculation.otherDeductions,
-          net_salary: calculation.netSalary,
-          advance_balance_after: calculation.advanceBalanceAfter,
+          total_days_in_month: effectiveCalc.totalDaysInMonth,
+          days_present: effectiveCalc.daysPresent,
+          weekly_off_days: effectiveCalc.weeklyOffDays,
+          paid_days: effectiveCalc.paidDays,
+          monthly_salary: effectiveCalc.monthlySalary,
+          per_day_salary: effectiveCalc.perDaySalary,
+          gross_salary: effectiveCalc.grossSalary,
+          advance_deduction: effectiveCalc.advanceDeduction,
+          other_deductions: otherDeductions,
+          net_salary: effectiveCalc.netSalary,
+          advance_balance_after: effectiveCalc.advanceBalanceAfter,
           generated_by: user.id,
           // Keep old fields for compatibility
-          total_working_days: calculation.totalDaysInMonth - calculation.weeklyOffDays,
-          basic_salary: calculation.grossSalary,
-          deductions: calculation.advanceDeduction + calculation.otherDeductions,
+          total_working_days: effectiveCalc.totalDaysInMonth - effectiveCalc.weeklyOffDays,
+          basic_salary: effectiveCalc.grossSalary,
+          deductions: effectiveCalc.advanceDeduction + otherDeductions,
         }, {
           onConflict: "user_id,month,year"
         });
@@ -277,7 +321,7 @@ export default function GenerateSalarySlipPage() {
       if (slipError) throw slipError;
       
       // Update advance remaining amounts (proportionally reduce each advance)
-      if (calculation.advanceDeduction > 0) {
+      if (effectiveCalc.advanceDeduction > 0) {
         const { data: advancesData } = await supabase
           .from("advances")
           .select("*")
@@ -285,7 +329,7 @@ export default function GenerateSalarySlipPage() {
           .gt("remaining_amount", 0)
           .order("advance_date", { ascending: true });
         
-        let remainingDeduction = calculation.advanceDeduction;
+        let remainingDeduction = effectiveCalc.advanceDeduction;
         
         for (const advance of advancesData || []) {
           if (remainingDeduction <= 0) break;
@@ -413,9 +457,27 @@ export default function GenerateSalarySlipPage() {
                     {selectedUser.name} - {MONTHS[selectedMonth - 1]} {selectedYear}
                   </CardDescription>
                 </div>
-                {existingSlip && (
-                  <span className="text-xs text-orange-600 font-medium">Existing slip will be updated</span>
-                )}
+                <div className="flex items-center gap-2">
+                  {existingSlip && (
+                    <span className="text-xs text-orange-600 font-medium">Existing slip will be updated</span>
+                  )}
+                  <Button
+                    variant={isEditing ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => {
+                      if (isEditing) {
+                        // Reset edits
+                        setEditDaysPresent(null);
+                        setEditGrossSalary(null);
+                        setEditAdvanceDeduction(null);
+                      }
+                      setIsEditing(!isEditing);
+                    }}
+                  >
+                    {isEditing ? <RotateCcw className="h-3 w-3 mr-1" /> : <Edit2 className="h-3 w-3 mr-1" />}
+                    {isEditing ? "Reset" : "Edit"}
+                  </Button>
+                </div>
               </div>
             </CardHeader>
             <CardContent className="p-4 space-y-4">
@@ -423,7 +485,7 @@ export default function GenerateSalarySlipPage() {
                 <div className="flex items-center justify-center py-8">
                   <Loader2 className="h-6 w-6 animate-spin text-primary" />
                 </div>
-              ) : (
+              ) : effectiveCalc && (
                 <>
                   {/* Attendance Summary */}
                   <div>
@@ -433,22 +495,31 @@ export default function GenerateSalarySlipPage() {
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                       <div className="p-2 rounded bg-muted text-center">
                         <p className="text-[10px] text-muted-foreground">Total Days</p>
-                        <p className="text-sm font-bold">{calculation.totalDaysInMonth}</p>
+                        <p className="text-sm font-bold">{effectiveCalc.totalDaysInMonth}</p>
                       </div>
                       <div className="p-2 rounded bg-muted text-center">
                         <p className="text-[10px] text-muted-foreground">Days Present</p>
-                        <p className="text-sm font-bold text-green-600">{calculation.daysPresent}</p>
+                        {isEditing ? (
+                          <Input
+                            type="number"
+                            value={editDaysPresent ?? calculation.daysPresent}
+                            onChange={(e) => setEditDaysPresent(parseFloat(e.target.value) || 0)}
+                            className="h-6 text-xs text-center p-1"
+                          />
+                        ) : (
+                          <p className="text-sm font-bold text-green-600">{effectiveCalc.daysPresent}</p>
+                        )}
                       </div>
                       <div className="p-2 rounded bg-muted text-center">
                         <p className="text-[10px] text-muted-foreground">Weekly Offs ({settings?.weekly_off_day}s)</p>
-                        <p className="text-sm font-bold">{calculation.weeklyOffDays}</p>
+                        <p className="text-sm font-bold">{effectiveCalc.weeklyOffDays}</p>
                       </div>
                       <div className="p-2 rounded bg-primary/10 text-center">
                         <p className="text-[10px] text-muted-foreground">Paid Days</p>
-                        <p className="text-sm font-bold text-primary">{calculation.paidDays}</p>
+                        <p className="text-sm font-bold text-primary">{effectiveCalc.paidDays}</p>
                       </div>
                     </div>
-                    {calculation.daysPresent < (settings?.min_days_for_weekly_off_paid || 20) && (
+                    {effectiveCalc.daysPresent < (settings?.min_days_for_weekly_off_paid || 20) && (
                       <p className="text-[10px] text-orange-600 mt-1">
                         * Weekly offs not paid (less than {settings?.min_days_for_weekly_off_paid} days present)
                       </p>
@@ -465,15 +536,24 @@ export default function GenerateSalarySlipPage() {
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Monthly Salary</span>
-                        <span>{formatCurrency(calculation.monthlySalary)}</span>
+                        <span>{formatCurrency(effectiveCalc.monthlySalary)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Per Day Rate</span>
-                        <span>{formatCurrency(calculation.perDaySalary)}</span>
+                        <span>{formatCurrency(effectiveCalc.perDaySalary)}</span>
                       </div>
-                      <div className="flex justify-between font-medium">
-                        <span>Gross Salary ({calculation.paidDays} days × {formatCurrency(calculation.perDaySalary)})</span>
-                        <span className="text-green-600">{formatCurrency(calculation.grossSalary)}</span>
+                      <div className="flex items-center justify-between font-medium">
+                        <span>Gross Salary</span>
+                        {isEditing ? (
+                          <Input
+                            type="number"
+                            value={editGrossSalary ?? calculation.grossSalary}
+                            onChange={(e) => setEditGrossSalary(parseFloat(e.target.value) || 0)}
+                            className="w-28 h-7 text-xs text-right"
+                          />
+                        ) : (
+                          <span className="text-green-600">{formatCurrency(effectiveCalc.grossSalary)}</span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -486,11 +566,20 @@ export default function GenerateSalarySlipPage() {
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Advance Balance</span>
-                        <span className="text-orange-600">{formatCurrency(calculation.advanceBalance)}</span>
+                        <span className="text-orange-600">{formatCurrency(effectiveCalc.advanceBalance)}</span>
                       </div>
-                      <div className="flex justify-between">
+                      <div className="flex items-center justify-between">
                         <span className="text-muted-foreground">Advance Deduction</span>
-                        <span className="text-destructive">-{formatCurrency(calculation.advanceDeduction)}</span>
+                        {isEditing ? (
+                          <Input
+                            type="number"
+                            value={editAdvanceDeduction ?? calculation.advanceDeduction}
+                            onChange={(e) => setEditAdvanceDeduction(parseFloat(e.target.value) || 0)}
+                            className="w-28 h-7 text-xs text-right"
+                          />
+                        ) : (
+                          <span className="text-destructive">-{formatCurrency(effectiveCalc.advanceDeduction)}</span>
+                        )}
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-muted-foreground">Other Deductions</span>
@@ -498,7 +587,7 @@ export default function GenerateSalarySlipPage() {
                           type="number"
                           value={otherDeductions}
                           onChange={(e) => setOtherDeductions(parseFloat(e.target.value) || 0)}
-                          className="w-24 h-7 text-xs text-right"
+                          className="w-28 h-7 text-xs text-right"
                           placeholder="0"
                         />
                       </div>
@@ -511,11 +600,11 @@ export default function GenerateSalarySlipPage() {
                   <div className="p-3 rounded-lg bg-primary/10">
                     <div className="flex justify-between items-center">
                       <span className="font-semibold">Net Salary</span>
-                      <span className="text-xl font-bold text-primary">{formatCurrency(calculation.netSalary)}</span>
+                      <span className="text-xl font-bold text-primary">{formatCurrency(effectiveCalc.netSalary)}</span>
                     </div>
-                    {calculation.advanceDeduction > 0 && (
+                    {effectiveCalc.advanceDeduction > 0 && (
                       <p className="text-[10px] text-muted-foreground mt-1">
-                        Advance balance after: {formatCurrency(calculation.advanceBalanceAfter)}
+                        Advance balance after: {formatCurrency(effectiveCalc.advanceBalanceAfter)}
                       </p>
                     )}
                   </div>
