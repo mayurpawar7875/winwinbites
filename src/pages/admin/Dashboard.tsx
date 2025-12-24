@@ -361,6 +361,80 @@ export default function AdminDashboardPage() {
         </CardContent>
       </Card>
 
+      {/* Sales Trend Chart */}
+      <Card className="border-0 shadow-lg">
+        <CardHeader className="pb-2">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                <BarChart3 className="h-5 w-5 text-emerald-500" />
+                Sales & Collections Trend
+              </CardTitle>
+              <CardDescription className="text-xs sm:text-sm">Last 6 months overview</CardDescription>
+            </div>
+            <div className="flex items-center gap-4 text-xs">
+              <div className="flex items-center gap-1.5">
+                <div className="h-3 w-3 rounded-full bg-emerald-500" />
+                <span className="text-muted-foreground">Sales</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="h-3 w-3 rounded-full bg-blue-500" />
+                <span className="text-muted-foreground">Collections</span>
+              </div>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-0">
+          {salesChartData.length === 0 ? (
+            <div className="flex items-center justify-center h-[200px] text-muted-foreground text-sm">
+              <Loader2 className="h-5 w-5 animate-spin mr-2" />
+              Loading chart data...
+            </div>
+          ) : (
+            <ChartContainer
+              config={{
+                sales: { label: "Sales", color: "hsl(var(--chart-1))" },
+                collections: { label: "Collections", color: "hsl(var(--chart-2))" },
+              }}
+              className="h-[220px] w-full"
+            >
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={salesChartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                  <XAxis 
+                    dataKey="month" 
+                    axisLine={false} 
+                    tickLine={false}
+                    tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
+                  />
+                  <YAxis 
+                    axisLine={false} 
+                    tickLine={false}
+                    tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+                    tickFormatter={(value) => `₹${(value / 1000).toFixed(0)}k`}
+                    width={50}
+                  />
+                  <ChartTooltip 
+                    content={<ChartTooltipContent formatter={(value) => formatCurrency(Number(value))} />}
+                  />
+                  <Bar 
+                    dataKey="sales" 
+                    fill="#10b981" 
+                    radius={[4, 4, 0, 0]}
+                    name="Sales"
+                  />
+                  <Bar 
+                    dataKey="collections" 
+                    fill="#3b82f6" 
+                    radius={[4, 4, 0, 0]}
+                    name="Collections"
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <Card className="border-0 shadow-md hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/admin/users")}>
@@ -479,79 +553,6 @@ export default function AdminDashboardPage() {
         </Card>
       </div>
 
-      {/* Sales Trend Chart */}
-      <Card className="border-0 shadow-lg">
-        <CardHeader className="pb-2">
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-base sm:text-lg flex items-center gap-2">
-                <BarChart3 className="h-5 w-5 text-emerald-500" />
-                Sales & Collections Trend
-              </CardTitle>
-              <CardDescription className="text-xs sm:text-sm">Last 6 months overview</CardDescription>
-            </div>
-            <div className="flex items-center gap-4 text-xs">
-              <div className="flex items-center gap-1.5">
-                <div className="h-3 w-3 rounded-full bg-emerald-500" />
-                <span className="text-muted-foreground">Sales</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="h-3 w-3 rounded-full bg-blue-500" />
-                <span className="text-muted-foreground">Collections</span>
-              </div>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="pt-0">
-          {salesChartData.length === 0 ? (
-            <div className="flex items-center justify-center h-[200px] text-muted-foreground text-sm">
-              <Loader2 className="h-5 w-5 animate-spin mr-2" />
-              Loading chart data...
-            </div>
-          ) : (
-            <ChartContainer
-              config={{
-                sales: { label: "Sales", color: "hsl(var(--chart-1))" },
-                collections: { label: "Collections", color: "hsl(var(--chart-2))" },
-              }}
-              className="h-[220px] w-full"
-            >
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={salesChartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                  <XAxis 
-                    dataKey="month" 
-                    axisLine={false} 
-                    tickLine={false}
-                    tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
-                  />
-                  <YAxis 
-                    axisLine={false} 
-                    tickLine={false}
-                    tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
-                    tickFormatter={(value) => `₹${(value / 1000).toFixed(0)}k`}
-                    width={50}
-                  />
-                  <ChartTooltip 
-                    content={<ChartTooltipContent formatter={(value) => formatCurrency(Number(value))} />}
-                  />
-                  <Bar 
-                    dataKey="sales" 
-                    fill="#10b981" 
-                    radius={[4, 4, 0, 0]}
-                    name="Sales"
-                  />
-                  <Bar 
-                    dataKey="collections" 
-                    fill="#3b82f6" 
-                    radius={[4, 4, 0, 0]}
-                    name="Collections"
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </ChartContainer>
-          )}
-        </CardContent>
-      </Card>
 
       {/* Quick Actions & Recent Requests */}
       <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
