@@ -14,10 +14,19 @@ import {
   Menu,
   X,
   ChevronRight,
+  ChevronDown,
   Wallet,
+  Settings,
+  Receipt,
+  CreditCard,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import logo from "@/assets/win-win-bites-logo.jpg";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 const navItems = [
   {
@@ -40,10 +49,20 @@ const navItems = [
     icon: Users,
     path: "/admin/users",
   },
+];
+
+const salarySubItems = [
   {
-    title: "Salary Management",
-    icon: Wallet,
+    title: "Generate Slip",
     path: "/admin/salary",
+  },
+  {
+    title: "Settings",
+    path: "/admin/salary/settings",
+  },
+  {
+    title: "Advances",
+    path: "/admin/salary/advances",
   },
 ];
 
@@ -58,8 +77,12 @@ export default function AdminLayout() {
     toast.success("Logged out successfully");
     navigate("/auth");
   };
+  const [salaryMenuOpen, setSalaryMenuOpen] = useState(
+    location.pathname.startsWith("/admin/salary")
+  );
 
   const isActive = (path: string) => location.pathname === path;
+  const isSalaryActive = location.pathname.startsWith("/admin/salary");
 
   if (!isAdmin) {
     return null;
@@ -142,6 +165,50 @@ export default function AdminLayout() {
                   {isActive(item.path) && <ChevronRight className="h-4 w-4" />}
                 </Button>
               ))}
+
+              {/* Salary Management with submenu */}
+              <Collapsible open={salaryMenuOpen} onOpenChange={setSalaryMenuOpen}>
+                <CollapsibleTrigger asChild>
+                  <Button
+                    variant={isSalaryActive ? "secondary" : "ghost"}
+                    className={cn(
+                      "w-full justify-start gap-3 h-10",
+                      isSalaryActive && "bg-primary/10 text-primary font-medium"
+                    )}
+                  >
+                    <Wallet className="h-4 w-4" />
+                    <span className="flex-1 text-left">Salary</span>
+                    <ChevronDown
+                      className={cn(
+                        "h-4 w-4 transition-transform",
+                        salaryMenuOpen && "rotate-180"
+                      )}
+                    />
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="pl-4 mt-1 space-y-1">
+                  {salarySubItems.map((item) => (
+                    <Button
+                      key={item.path}
+                      variant={isActive(item.path) ? "secondary" : "ghost"}
+                      size="sm"
+                      className={cn(
+                        "w-full justify-start gap-3 h-9",
+                        isActive(item.path) && "bg-primary/10 text-primary font-medium"
+                      )}
+                      onClick={() => {
+                        navigate(item.path);
+                        setSidebarOpen(false);
+                      }}
+                    >
+                      {item.title === "Generate Slip" && <Receipt className="h-3.5 w-3.5" />}
+                      {item.title === "Settings" && <Settings className="h-3.5 w-3.5" />}
+                      {item.title === "Advances" && <CreditCard className="h-3.5 w-3.5" />}
+                      <span>{item.title}</span>
+                    </Button>
+                  ))}
+                </CollapsibleContent>
+              </Collapsible>
             </nav>
           </ScrollArea>
 
