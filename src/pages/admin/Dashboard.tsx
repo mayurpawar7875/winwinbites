@@ -17,14 +17,24 @@ import {
   Activity,
   ArrowRight,
   Loader2,
+  UserCheck,
+  Timer,
 } from "lucide-react";
-import { format } from "date-fns";
+import { format, differenceInMinutes } from "date-fns";
 
 interface DashboardStats {
   totalEmployees: number;
   presentToday: number;
   pendingRequests: number;
   incompleteAttendance: number;
+}
+
+interface ActiveEmployee {
+  id: string;
+  user_id: string;
+  user_name: string | null;
+  punch_in_time: string | null;
+  status: string | null;
 }
 
 export default function AdminDashboardPage() {
@@ -35,6 +45,7 @@ export default function AdminDashboardPage() {
     incompleteAttendance: 0,
   });
   const [recentRequests, setRecentRequests] = useState<any[]>([]);
+  const [activeEmployees, setActiveEmployees] = useState<ActiveEmployee[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { isAdmin } = useAuth();
   const navigate = useNavigate();
@@ -47,7 +58,41 @@ export default function AdminDashboardPage() {
       return;
     }
     fetchDashboardData();
-  }, [isAdmin, navigate]);
+
+    // Set up real-time subscription for attendance changes
+    const channel = supabase
+      .channel('admin-dashboard-attendance')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'attendance',
+          filter: `date=eq.${today}`
+        },
+        (payload) => {
+          console.log('Attendance change:', payload);
+          fetchDashboardData(); // Refetch on any attendance change
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'leave_requests'
+        },
+        (payload) => {
+          console.log('Leave request change:', payload);
+          fetchDashboardData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [isAdmin, navigate, today]);
 
   const fetchDashboardData = async () => {
     setIsLoading(true);
@@ -64,6 +109,18 @@ export default function AdminDashboardPage() {
       const incompleteAttendance = attendance.filter((a) => a.punch_in_time && !a.punch_out_time).length;
       const pendingRequests = requestsRes.data?.length || 0;
 
+      // Get active employees (punched in but not punched out)
+      const active = attendance
+        .filter((a) => a.punch_in_time && !a.punch_out_time)
+        .map((a) => ({
+          id: a.id,
+          user_id: a.user_id,
+          user_name: a.user_name,
+          punch_in_time: a.punch_in_time,
+          status: a.status,
+        }));
+
+      setActiveEmployees(active);
       setStats({
         totalEmployees,
         presentToday,
@@ -77,6 +134,15 @@ export default function AdminDashboardPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const getWorkingDuration = (punchInTime: string) => {
+    const punchIn = new Date(punchInTime);
+    const now = new Date();
+    const mins = differenceInMinutes(now, punchIn);
+    const hours = Math.floor(mins / 60);
+    const minutes = mins % 60;
+    return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
   };
 
   if (!isAdmin) return null;
@@ -161,6 +227,58 @@ export default function AdminDashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Active Employees - Real-time Section */}
+      <Card className="border-0 shadow-lg border-l-4 border-l-green-500">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                <UserCheck className="h-5 w-5 text-green-500" />
+                Active Employees
+                <Badge variant="outline" className="ml-2 bg-green-500/10 text-green-600 border-green-500/30">
+                  {activeEmployees.length} Working
+                </Badge>
+              </CardTitle>
+              <CardDescription className="text-xs sm:text-sm">Employees currently on duty (real-time)</CardDescription>
+            </div>
+            <Activity className="h-4 w-4 text-green-500 animate-pulse" />
+          </div>
+        </CardHeader>
+        <CardContent>
+          {activeEmployees.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground text-sm">
+              <Clock className="h-10 w-10 mx-auto mb-2 opacity-40" />
+              No employees currently working
+            </div>
+          ) : (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {activeEmployees.map((employee) => (
+                <div
+                  key={employee.id}
+                  className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-green-500/5 to-transparent border border-green-500/20 hover:border-green-500/40 transition-colors"
+                >
+                  <div className="h-10 w-10 rounded-full bg-green-500/20 flex items-center justify-center shrink-0">
+                    <span className="text-sm font-semibold text-green-600">
+                      {employee.user_name?.charAt(0)?.toUpperCase() || "?"}
+                    </span>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-sm truncate">{employee.user_name || "Unknown"}</p>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Timer className="h-3 w-3" />
+                      <span>In: {employee.punch_in_time ? format(new Date(employee.punch_in_time), "hh:mm a") : "-"}</span>
+                    </div>
+                  </div>
+                  <Badge variant="secondary" className="bg-green-500/10 text-green-600 text-xs shrink-0">
+                    {employee.punch_in_time ? getWorkingDuration(employee.punch_in_time) : "-"}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Quick Actions & Recent Requests */}
       <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
