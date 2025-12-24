@@ -19,6 +19,7 @@ import {
   FileText,
   Loader2,
   Plus,
+  ArrowLeft,
 } from "lucide-react";
 
 interface UserProfile {
@@ -151,6 +152,17 @@ export default function SalaryManagement() {
 
   return (
     <div className="p-4 sm:p-6 space-y-4">
+      {/* Header with Back Button */}
+      <div className="flex items-center gap-3 mb-2">
+        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate("/admin/dashboard")}>
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <div>
+          <h1 className="font-bold text-base sm:text-lg text-foreground">Salary Management</h1>
+          <p className="text-xs text-muted-foreground">Manage employee salaries and advances</p>
+        </div>
+      </div>
+
       {/* Quick Actions */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <Card 
