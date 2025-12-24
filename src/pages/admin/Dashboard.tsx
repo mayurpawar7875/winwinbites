@@ -19,14 +19,25 @@ import {
   Loader2,
   UserCheck,
   Timer,
+  IndianRupee,
+  Package,
+  CreditCard,
+  ReceiptText,
 } from "lucide-react";
-import { format, differenceInMinutes } from "date-fns";
+import { format, differenceInMinutes, startOfMonth, endOfMonth } from "date-fns";
 
 interface DashboardStats {
   totalEmployees: number;
   presentToday: number;
   pendingRequests: number;
   incompleteAttendance: number;
+}
+
+interface BusinessStats {
+  totalSalesThisMonth: number;
+  totalPendingPayments: number;
+  totalInvoices: number;
+  totalInventoryItems: number;
 }
 
 interface ActiveEmployee {
@@ -44,12 +55,20 @@ export default function AdminDashboardPage() {
     pendingRequests: 0,
     incompleteAttendance: 0,
   });
+  const [businessStats, setBusinessStats] = useState<BusinessStats>({
+    totalSalesThisMonth: 0,
+    totalPendingPayments: 0,
+    totalInvoices: 0,
+    totalInventoryItems: 0,
+  });
   const [recentRequests, setRecentRequests] = useState<any[]>([]);
   const [activeEmployees, setActiveEmployees] = useState<ActiveEmployee[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { isAdmin } = useAuth();
   const navigate = useNavigate();
   const today = format(new Date(), "yyyy-MM-dd");
+  const monthStart = format(startOfMonth(new Date()), "yyyy-MM-dd");
+  const monthEnd = format(endOfMonth(new Date()), "yyyy-MM-dd");
 
   useEffect(() => {
     if (!isAdmin) {
@@ -58,6 +77,7 @@ export default function AdminDashboardPage() {
       return;
     }
     fetchDashboardData();
+    fetchBusinessData();
 
     // Set up real-time subscription for attendance changes
     const channel = supabase
@@ -70,10 +90,7 @@ export default function AdminDashboardPage() {
           table: 'attendance',
           filter: `date=eq.${today}`
         },
-        (payload) => {
-          console.log('Attendance change:', payload);
-          fetchDashboardData(); // Refetch on any attendance change
-        }
+        () => fetchDashboardData()
       )
       .on(
         'postgres_changes',
@@ -82,10 +99,34 @@ export default function AdminDashboardPage() {
           schema: 'public',
           table: 'leave_requests'
         },
-        (payload) => {
-          console.log('Leave request change:', payload);
-          fetchDashboardData();
-        }
+        () => fetchDashboardData()
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'invoices'
+        },
+        () => fetchBusinessData()
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'sales'
+        },
+        () => fetchBusinessData()
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'inventory'
+        },
+        () => fetchBusinessData()
       )
       .subscribe();
 
@@ -93,6 +134,44 @@ export default function AdminDashboardPage() {
       supabase.removeChannel(channel);
     };
   }, [isAdmin, navigate, today]);
+
+  const fetchBusinessData = async () => {
+    try {
+      // Fetch sales this month
+      const { data: salesData } = await supabase
+        .from("sales")
+        .select("total_amount")
+        .gte("date", monthStart)
+        .lte("date", monthEnd);
+
+      // Fetch invoices with pending payments
+      const { data: invoicesData } = await supabase
+        .from("invoices")
+        .select("balance_due, payment_status");
+
+      // Fetch inventory
+      const { data: inventoryData } = await supabase
+        .from("inventory")
+        .select("closing_stock, product_name")
+        .eq("date", today);
+
+      const totalSalesThisMonth = (salesData || []).reduce((sum, s) => sum + (s.total_amount || 0), 0);
+      const totalPendingPayments = (invoicesData || [])
+        .filter(inv => inv.payment_status !== "PAID")
+        .reduce((sum, inv) => sum + (inv.balance_due || 0), 0);
+      const totalInvoices = (invoicesData || []).filter(inv => inv.payment_status !== "PAID").length;
+      const totalInventoryItems = (inventoryData || []).reduce((sum, i) => sum + (i.closing_stock || 0), 0);
+
+      setBusinessStats({
+        totalSalesThisMonth,
+        totalPendingPayments,
+        totalInvoices,
+        totalInventoryItems,
+      });
+    } catch (error) {
+      console.error("Error fetching business data:", error);
+    }
+  };
 
   const fetchDashboardData = async () => {
     setIsLoading(true);
@@ -143,6 +222,14 @@ export default function AdminDashboardPage() {
     const hours = Math.floor(mins / 60);
     const minutes = mins % 60;
     return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    }).format(amount);
   };
 
   if (!isAdmin) return null;
@@ -274,6 +361,65 @@ export default function AdminDashboardPage() {
               <div>
                 <p className="text-2xl font-bold">{stats.pendingRequests}</p>
                 <p className="text-xs text-muted-foreground">Pending Requests</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Business Stats Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <Card className="border-0 shadow-md bg-gradient-to-br from-emerald-500/10 to-transparent border-l-4 border-l-emerald-500">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+                <IndianRupee className="h-5 w-5 text-emerald-600" />
+              </div>
+              <div>
+                <p className="text-lg sm:text-xl font-bold text-emerald-600">{formatCurrency(businessStats.totalSalesThisMonth)}</p>
+                <p className="text-xs text-muted-foreground">Sales This Month</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-0 shadow-md bg-gradient-to-br from-orange-500/10 to-transparent border-l-4 border-l-orange-500">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg bg-orange-500/20 flex items-center justify-center">
+                <CreditCard className="h-5 w-5 text-orange-600" />
+              </div>
+              <div>
+                <p className="text-lg sm:text-xl font-bold text-orange-600">{formatCurrency(businessStats.totalPendingPayments)}</p>
+                <p className="text-xs text-muted-foreground">Pending Payments</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-0 shadow-md bg-gradient-to-br from-blue-500/10 to-transparent border-l-4 border-l-blue-500">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                <ReceiptText className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-blue-600">{businessStats.totalInvoices}</p>
+                <p className="text-xs text-muted-foreground">Unpaid Invoices</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-0 shadow-md bg-gradient-to-br from-purple-500/10 to-transparent border-l-4 border-l-purple-500">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                <Package className="h-5 w-5 text-purple-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-purple-600">{businessStats.totalInventoryItems.toLocaleString()}</p>
+                <p className="text-xs text-muted-foreground">Total Inventory</p>
               </div>
             </div>
           </CardContent>
