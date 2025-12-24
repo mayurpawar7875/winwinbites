@@ -75,7 +75,7 @@ export default function AdminLayout() {
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar - Hidden on mobile, visible on desktop */}
       <aside
         className={cn(
           "fixed lg:static inset-y-0 left-0 z-50 w-64 bg-card border-r border-border transform transition-transform duration-300 ease-in-out lg:translate-x-0",
@@ -171,7 +171,11 @@ export default function AdminLayout() {
       <div className="flex-1 flex flex-col min-w-0">
         {/* Mobile Header */}
         <header className="sticky top-0 z-40 bg-card border-b border-border lg:hidden">
-          <div className="flex items-center h-14 px-4 gap-4">
+          <div className="flex items-center justify-between h-14 px-4">
+            <div className="flex items-center gap-2">
+              <Shield className="h-5 w-5 text-primary" />
+              <span className="font-semibold text-sm">Admin Panel</span>
+            </div>
             <Button
               variant="ghost"
               size="icon"
@@ -180,17 +184,45 @@ export default function AdminLayout() {
             >
               <Menu className="h-5 w-5" />
             </Button>
-            <div className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-primary" />
-              <span className="font-semibold text-sm">Admin Panel</span>
-            </div>
           </div>
         </header>
 
-        {/* Page Content */}
-        <main className="flex-1">
+        {/* Page Content - Add bottom padding for mobile nav */}
+        <main className="flex-1 pb-20 lg:pb-0">
           <Outlet />
         </main>
+
+        {/* Mobile Bottom Navigation */}
+        <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border lg:hidden">
+          <div className="flex items-center justify-around h-16 px-2">
+            {navItems.map((item) => (
+              <button
+                key={item.path}
+                onClick={() => navigate(item.path)}
+                className={cn(
+                  "flex flex-col items-center justify-center gap-1 flex-1 h-full px-2 rounded-lg transition-colors",
+                  isActive(item.path)
+                    ? "text-primary"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <item.icon className={cn(
+                  "h-5 w-5 transition-transform",
+                  isActive(item.path) && "scale-110"
+                )} />
+                <span className={cn(
+                  "text-[10px] font-medium truncate max-w-full",
+                  isActive(item.path) && "font-semibold"
+                )}>
+                  {item.title.split(" ")[0]}
+                </span>
+                {isActive(item.path) && (
+                  <div className="absolute bottom-1 h-1 w-6 rounded-full bg-primary" />
+                )}
+              </button>
+            ))}
+          </div>
+        </nav>
       </div>
     </div>
   );
