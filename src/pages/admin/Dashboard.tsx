@@ -5,7 +5,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { toast } from "sonner";
+import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, BarChart, Bar } from "recharts";
 import {
   Users,
   Calendar,
@@ -23,8 +25,9 @@ import {
   Package,
   CreditCard,
   ReceiptText,
+  BarChart3,
 } from "lucide-react";
-import { format, differenceInMinutes, startOfMonth, endOfMonth } from "date-fns";
+import { format, differenceInMinutes, startOfMonth, endOfMonth, subMonths } from "date-fns";
 
 interface DashboardStats {
   totalEmployees: number;
@@ -38,6 +41,12 @@ interface BusinessStats {
   totalPendingPayments: number;
   totalInvoices: number;
   totalInventoryItems: number;
+}
+
+interface SalesChartData {
+  month: string;
+  sales: number;
+  collections: number;
 }
 
 interface ActiveEmployee {
@@ -63,6 +72,7 @@ export default function AdminDashboardPage() {
   });
   const [recentRequests, setRecentRequests] = useState<any[]>([]);
   const [activeEmployees, setActiveEmployees] = useState<ActiveEmployee[]>([]);
+  const [salesChartData, setSalesChartData] = useState<SalesChartData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { isAdmin } = useAuth();
   const navigate = useNavigate();
@@ -78,6 +88,7 @@ export default function AdminDashboardPage() {
     }
     fetchDashboardData();
     fetchBusinessData();
+    fetchSalesChartData();
 
     // Set up real-time subscription for attendance changes
     const channel = supabase
@@ -170,6 +181,48 @@ export default function AdminDashboardPage() {
       });
     } catch (error) {
       console.error("Error fetching business data:", error);
+    }
+  };
+
+  const fetchSalesChartData = async () => {
+    try {
+      const chartData: SalesChartData[] = [];
+      const now = new Date();
+
+      // Fetch last 6 months of data
+      for (let i = 5; i >= 0; i--) {
+        const monthDate = subMonths(now, i);
+        const monthStartDate = format(startOfMonth(monthDate), "yyyy-MM-dd");
+        const monthEndDate = format(endOfMonth(monthDate), "yyyy-MM-dd");
+        const monthLabel = format(monthDate, "MMM");
+
+        // Fetch sales for this month
+        const { data: salesData } = await supabase
+          .from("sales")
+          .select("total_amount")
+          .gte("date", monthStartDate)
+          .lte("date", monthEndDate);
+
+        // Fetch collections for this month
+        const { data: collectionsData } = await supabase
+          .from("collections")
+          .select("amount_received")
+          .gte("payment_date", monthStartDate)
+          .lte("payment_date", monthEndDate);
+
+        const totalSales = (salesData || []).reduce((sum, s) => sum + (s.total_amount || 0), 0);
+        const totalCollections = (collectionsData || []).reduce((sum, c) => sum + (c.amount_received || 0), 0);
+
+        chartData.push({
+          month: monthLabel,
+          sales: totalSales,
+          collections: totalCollections,
+        });
+      }
+
+      setSalesChartData(chartData);
+    } catch (error) {
+      console.error("Error fetching sales chart data:", error);
     }
   };
 
@@ -425,6 +478,80 @@ export default function AdminDashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Sales Trend Chart */}
+      <Card className="border-0 shadow-lg">
+        <CardHeader className="pb-2">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                <BarChart3 className="h-5 w-5 text-emerald-500" />
+                Sales & Collections Trend
+              </CardTitle>
+              <CardDescription className="text-xs sm:text-sm">Last 6 months overview</CardDescription>
+            </div>
+            <div className="flex items-center gap-4 text-xs">
+              <div className="flex items-center gap-1.5">
+                <div className="h-3 w-3 rounded-full bg-emerald-500" />
+                <span className="text-muted-foreground">Sales</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="h-3 w-3 rounded-full bg-blue-500" />
+                <span className="text-muted-foreground">Collections</span>
+              </div>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-0">
+          {salesChartData.length === 0 ? (
+            <div className="flex items-center justify-center h-[200px] text-muted-foreground text-sm">
+              <Loader2 className="h-5 w-5 animate-spin mr-2" />
+              Loading chart data...
+            </div>
+          ) : (
+            <ChartContainer
+              config={{
+                sales: { label: "Sales", color: "hsl(var(--chart-1))" },
+                collections: { label: "Collections", color: "hsl(var(--chart-2))" },
+              }}
+              className="h-[220px] w-full"
+            >
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={salesChartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                  <XAxis 
+                    dataKey="month" 
+                    axisLine={false} 
+                    tickLine={false}
+                    tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
+                  />
+                  <YAxis 
+                    axisLine={false} 
+                    tickLine={false}
+                    tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+                    tickFormatter={(value) => `₹${(value / 1000).toFixed(0)}k`}
+                    width={50}
+                  />
+                  <ChartTooltip 
+                    content={<ChartTooltipContent formatter={(value) => formatCurrency(Number(value))} />}
+                  />
+                  <Bar 
+                    dataKey="sales" 
+                    fill="#10b981" 
+                    radius={[4, 4, 0, 0]}
+                    name="Sales"
+                  />
+                  <Bar 
+                    dataKey="collections" 
+                    fill="#3b82f6" 
+                    radius={[4, 4, 0, 0]}
+                    name="Collections"
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Quick Actions & Recent Requests */}
       <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
