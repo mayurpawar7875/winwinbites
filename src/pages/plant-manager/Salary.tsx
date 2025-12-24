@@ -107,6 +107,25 @@ export default function Salary() {
       return;
     }
 
+    // Fetch user roles to filter out admins
+    const { data: rolesData, error: rolesError } = await supabase
+      .from("user_roles")
+      .select("user_id, role");
+    
+    if (rolesError) {
+      console.error("Error fetching roles:", rolesError);
+    }
+
+    // Get admin user IDs to exclude
+    const adminUserIds = (rolesData || [])
+      .filter(r => r.role === "admin")
+      .map(r => r.user_id);
+
+    // Filter out admin users from profiles
+    const nonAdminProfiles = (profilesData || []).filter(
+      profile => !adminUserIds.includes(profile.user_id)
+    );
+
     // Fetch salary data from employee_salaries table (admin-only)
     const { data: salaryData, error: salaryError } = await supabase
       .from("employee_salaries")
@@ -117,7 +136,7 @@ export default function Salary() {
     }
 
     // Merge profile and salary data
-    const usersWithSalary: UserWithSalary[] = (profilesData || []).map(profile => {
+    const usersWithSalary: UserWithSalary[] = nonAdminProfiles.map(profile => {
       const salary = salaryData?.find(s => s.user_id === profile.user_id);
       return {
         ...profile,
