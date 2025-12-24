@@ -33,6 +33,7 @@ import SalarySettings from "./pages/admin/SalarySettings";
 import Advances from "./pages/admin/Advances";
 import GenerateSalarySlip from "./pages/admin/GenerateSalarySlip";
 import NotFound from "./pages/NotFound";
+import Install from "./pages/Install";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +47,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/install" element={<Install />} />
             
             {/* Plant Manager Routes */}
             <Route element={<ProtectedRoute />}>
