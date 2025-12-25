@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { AdminRoute } from "@/components/AdminRoute";
 import AdminLayout from "@/components/layouts/AdminLayout";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -68,8 +69,8 @@ const App = () => (
               <Route path="/plant-manager/my-advances" element={<MyAdvances />} />
             </Route>
             
-            {/* Admin Routes with Admin Layout */}
-            <Route element={<ProtectedRoute />}>
+            {/* Admin Routes with Admin Layout - Server-side role enforcement */}
+            <Route element={<AdminRoute />}>
               <Route element={<AdminLayout />}>
                 <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
                 <Route path="/admin/attendance" element={<AdminAttendance />} />
