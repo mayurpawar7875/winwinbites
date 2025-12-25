@@ -187,10 +187,10 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-card border-b border-border shadow-sm">
-        <div className="container flex items-center justify-between h-12 sm:h-16 px-3 sm:px-4">
+    <div className="min-h-screen bg-background ios-scroll">
+      {/* Header with iOS safe area */}
+      <header className="sticky top-0 z-50 bg-card border-b border-border shadow-sm safe-top">
+        <div className="container flex items-center justify-between h-12 sm:h-16 px-3 sm:px-4 safe-x">
           <div className="flex items-center gap-2 sm:gap-3">
             <img src={logo} alt="Win Win Bites" className="h-8 sm:h-10 w-auto" />
             <div>
@@ -210,7 +210,7 @@ export default function Dashboard() {
                 size="icon"
                 onClick={() => fetchAdminStats(selectedDate)}
                 disabled={isRefreshing}
-                className="h-8 w-8 sm:h-10 sm:w-10 text-muted-foreground"
+                className="h-8 w-8 sm:h-10 sm:w-10 text-muted-foreground touch-target"
               >
                 <RefreshCw className={`h-4 w-4 sm:h-5 sm:w-5 ${isRefreshing ? "animate-spin" : ""}`} />
               </Button>
@@ -225,7 +225,7 @@ export default function Dashboard() {
               variant="ghost"
               size="icon"
               onClick={handleLogout}
-              className="h-8 w-8 sm:h-10 sm:w-10 text-muted-foreground hover:text-destructive"
+              className="h-8 w-8 sm:h-10 sm:w-10 text-muted-foreground hover:text-destructive touch-target"
             >
               <LogOut className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
@@ -233,8 +233,8 @@ export default function Dashboard() {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="container px-3 sm:px-4 py-4 sm:py-6">
+      {/* Main Content with iOS safe areas and better mobile spacing */}
+      <main className="container px-3 sm:px-4 py-4 sm:py-6 pb-safe safe-x ios-scroll">
         <div className="mb-4 sm:mb-6">
           <h2 className="text-base sm:text-xl font-bold text-foreground">Welcome, {profile?.name}</h2>
           <p className="text-xs sm:text-sm text-muted-foreground">
