@@ -361,58 +361,64 @@ export default function AdminUsers() {
               {filteredUsers.map((user) => (
                 <div
                   key={user.id}
-                  className="flex items-center justify-between p-3 sm:p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                  className="p-3 sm:p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
                 >
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="font-medium text-sm sm:text-base truncate">{user.name}</p>
-                      {!user.is_active && (
-                        <Badge variant="outline" className="text-xs text-muted-foreground">
-                          Inactive
+                  {/* Mobile: Stack layout */}
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    {/* User info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="font-medium text-sm sm:text-base break-words">{user.name}</p>
+                        {!user.is_active && (
+                          <Badge variant="outline" className="text-xs text-muted-foreground shrink-0">
+                            Inactive
+                          </Badge>
+                        )}
+                        <Badge variant={getRoleBadgeVariant(getUserRole(user.user_id))} className="text-xs shrink-0">
+                          {ROLES.find((r) => r.value === getUserRole(user.user_id))?.label || getUserRole(user.user_id)}
                         </Badge>
-                      )}
+                      </div>
+                      <p className="text-xs sm:text-sm text-muted-foreground break-all mt-1">{user.email}</p>
                     </div>
-                    <p className="text-xs sm:text-sm text-muted-foreground truncate">{user.email}</p>
-                  </div>
-                  <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-                    <Badge variant={getRoleBadgeVariant(getUserRole(user.user_id))} className="text-xs">
-                      {ROLES.find((r) => r.value === getUserRole(user.user_id))?.label || getUserRole(user.user_id)}
-                    </Badge>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={() => {
-                        setRoleChangeUser({
-                          userId: user.user_id,
-                          name: user.name,
-                          currentRole: getUserRole(user.user_id),
-                        });
-                        setNewRole(getUserRole(user.user_id));
-                      }}
-                    >
-                      <Settings2 className="h-4 w-4 text-muted-foreground" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={() => handleToggleActive(user)}
-                    >
-                      {user.is_active ? (
-                        <UserX className="h-4 w-4 text-muted-foreground" />
-                      ) : (
-                        <UserCheck className="h-4 w-4 text-success" />
-                      )}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-destructive hover:text-destructive"
-                      onClick={() => setDeleteUserId(user.user_id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    
+                    {/* Action buttons */}
+                    <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-9 w-9"
+                        onClick={() => {
+                          setRoleChangeUser({
+                            userId: user.user_id,
+                            name: user.name,
+                            currentRole: getUserRole(user.user_id),
+                          });
+                          setNewRole(getUserRole(user.user_id));
+                        }}
+                      >
+                        <Settings2 className="h-4 w-4 text-muted-foreground" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-9 w-9"
+                        onClick={() => handleToggleActive(user)}
+                      >
+                        {user.is_active ? (
+                          <UserX className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <UserCheck className="h-4 w-4 text-success" />
+                        )}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-9 w-9 text-destructive hover:text-destructive"
+                        onClick={() => setDeleteUserId(user.user_id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ))}
