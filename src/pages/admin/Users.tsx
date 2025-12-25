@@ -364,22 +364,30 @@ export default function AdminUsers() {
                   className="p-3 sm:p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
                 >
                   {/* Mobile: Stack layout */}
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
                     {/* User info */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <p className="font-medium text-sm sm:text-base break-words">{user.name}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium text-sm sm:text-base">{user.name}</p>
                         {!user.is_active && (
                           <Badge variant="outline" className="text-xs text-muted-foreground shrink-0">
                             Inactive
                           </Badge>
                         )}
-                        <Badge variant={getRoleBadgeVariant(getUserRole(user.user_id))} className="text-xs shrink-0">
+                      </div>
+                      <p className="text-xs sm:text-sm text-muted-foreground break-all">{user.email}</p>
+                      {/* Role badge - below email on mobile */}
+                      <div className="mt-2 sm:hidden">
+                        <Badge variant={getRoleBadgeVariant(getUserRole(user.user_id))} className="text-xs">
                           {ROLES.find((r) => r.value === getUserRole(user.user_id))?.label || getUserRole(user.user_id)}
                         </Badge>
                       </div>
-                      <p className="text-xs sm:text-sm text-muted-foreground break-all mt-1">{user.email}</p>
                     </div>
+                    
+                    {/* Role badge - inline on desktop */}
+                    <Badge variant={getRoleBadgeVariant(getUserRole(user.user_id))} className="text-xs hidden sm:inline-flex shrink-0">
+                      {ROLES.find((r) => r.value === getUserRole(user.user_id))?.label || getUserRole(user.user_id)}
+                    </Badge>
                     
                     {/* Action buttons */}
                     <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
