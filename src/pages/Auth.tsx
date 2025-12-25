@@ -136,7 +136,7 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/10 p-3 sm:p-4 py-4 sm:py-6">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/10 p-3 sm:p-4 py-4 sm:py-6 safe-all ios-scroll">
       {/* Background decorative elements - hidden on mobile for performance */}
       <div className="hidden sm:block absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/10 rounded-full blur-3xl" />

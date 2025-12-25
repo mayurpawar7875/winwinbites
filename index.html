@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
     
     <!-- App Title & Description -->
     <title>Win Win Bites</title>
@@ -12,13 +12,17 @@
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#16a34a" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Win Win Bites" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="format-detection" content="telephone=no" />
     
+    <!-- iOS Specific -->
+    <meta name="apple-touch-fullscreen" content="yes" />
+    
     <!-- Favicon -->
     <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="apple-touch-icon" href="/favicon.ico" />
 
     <!-- Open Graph -->
     <meta property="og:title" content="Win Win Bites" />
@@ -34,7 +38,7 @@
     <meta name="twitter:image" content="/og-image.jpg" />
   </head>
 
-  <body>
+  <body class="no-tap-highlight">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

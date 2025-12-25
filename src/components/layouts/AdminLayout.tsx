@@ -237,8 +237,8 @@ export default function AdminLayout() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Mobile Header */}
-        <header className="sticky top-0 z-40 bg-card border-b border-border lg:hidden">
-          <div className="flex items-center justify-between h-14 px-4">
+        <header className="sticky top-0 z-40 bg-card border-b border-border lg:hidden safe-top">
+          <div className="flex items-center justify-between h-14 px-4 safe-x">
             <div className="flex items-center gap-2">
               <Shield className="h-5 w-5 text-primary" />
               <span className="font-semibold text-sm">Admin Panel</span>
@@ -246,7 +246,7 @@ export default function AdminLayout() {
             <Button
               variant="ghost"
               size="icon"
-              className="h-9 w-9"
+              className="h-9 w-9 touch-target"
               onClick={() => setSidebarOpen(true)}
             >
               <Menu className="h-5 w-5" />
@@ -254,20 +254,20 @@ export default function AdminLayout() {
           </div>
         </header>
 
-        {/* Page Content - Add bottom padding for mobile nav */}
-        <main className="flex-1 pb-20 lg:pb-0">
+        {/* Page Content - Add bottom padding for mobile nav with safe area */}
+        <main className="flex-1 pb-24 lg:pb-0 ios-scroll">
           <Outlet />
         </main>
 
-        {/* Mobile Bottom Navigation */}
-        <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border lg:hidden">
-          <div className="flex items-center justify-around h-16 px-2">
+        {/* Mobile Bottom Navigation with iOS safe area */}
+        <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border lg:hidden pb-safe">
+          <div className="flex items-center justify-around h-16 px-2 safe-x">
             {navItems.map((item) => (
               <button
                 key={item.path}
                 onClick={() => navigate(item.path)}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-1 flex-1 h-full px-2 rounded-lg transition-colors",
+                  "flex flex-col items-center justify-center gap-1 flex-1 h-full px-2 rounded-lg transition-colors touch-target no-tap-highlight",
                   isActive(item.path)
                     ? "text-primary"
                     : "text-muted-foreground hover:text-foreground"
